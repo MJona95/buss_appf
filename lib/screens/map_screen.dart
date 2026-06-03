@@ -2,17 +2,21 @@ import 'package:flutter/material.dart';
 import '../core/database/local_database.dart';
 import '../core/theme/app_theme.dart';
 import '../widgets/common/custom_text_field.dart';
+import '../widgets/common/custom_top_app_bar.dart';
 import '../models/station_model.dart';
 import '../widgets/station_card.dart';
 
 class MapScreen extends StatefulWidget {
-  const MapScreen({super.key});
+  final bool isActive;
+
+  const MapScreen({super.key, this.isActive = true});
 
   @override
   State<MapScreen> createState() => _MapScreenState();
 }
 
-class _MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixin {
+class _MapScreenState extends State<MapScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _pulsingController;
   List<StationModel> _allStations = [];
   List<StationModel> _displayedStations = [];
@@ -26,9 +30,24 @@ class _MapScreenState extends State<MapScreen> with SingleTickerProviderStateMix
     _pulsingController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
-    )..repeat();
+    );
+    if (widget.isActive) {
+      _pulsingController.repeat();
+    }
 
     _loadStations();
+  }
+
+  @override
+  void didUpdateWidget(MapScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isActive != oldWidget.isActive) {
+      if (widget.isActive) {
+        _pulsingController.repeat();
+      } else {
+        _pulsingController.stop();
+      }
+    }
   }
 
   @override
@@ -41,7 +60,9 @@ class _MapScreenState extends State<MapScreen> with SingleTickerProviderStateMix
     try {
       final dbData = await LocalDatabase.instance.getStations();
       setState(() {
-        _allStations = dbData.map((map) => StationModel.fromDbMap(map)).toList();
+        _allStations = dbData
+            .map((map) => StationModel.fromDbMap(map))
+            .toList();
         _displayedStations = List.from(_allStations);
         if (_displayedStations.isNotEmpty) {
           _selectedStationId = _displayedStations.first.id;
@@ -62,9 +83,11 @@ class _MapScreenState extends State<MapScreen> with SingleTickerProviderStateMix
         _displayedStations = List.from(_allStations);
       } else {
         _displayedStations = _allStations
-            .where((station) =>
-                station.name.toLowerCase().contains(query.toLowerCase()) ||
-                station.address.toLowerCase().contains(query.toLowerCase()))
+            .where(
+              (station) =>
+                  station.name.toLowerCase().contains(query.toLowerCase()) ||
+                  station.address.toLowerCase().contains(query.toLowerCase()),
+            )
             .toList();
       }
     });
@@ -82,57 +105,17 @@ class _MapScreenState extends State<MapScreen> with SingleTickerProviderStateMix
                   children: [
                     // TopAppBar
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                width: 48,
-                                height: 48,
-                                decoration: const BoxDecoration(
-                                  color: AppTheme.surfaceContainer,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: IconButton(
-                                  icon: const Icon(Icons.menu, color: AppTheme.onBackgroundColor),
-                                  onPressed: () {},
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              const Text(
-                                'Explore Stations',
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: -0.4,
-                                  color: AppTheme.primaryColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: AppTheme.borderVariantColor.withOpacity(0.3),
-                                width: 1.0,
-                              ),
-                              image: const DecorationImage(
-                                image: NetworkImage(
-                                  'https://lh3.googleusercontent.com/aida-public/AB6AXuDfmA772YTD-GSL31OxXmelhuAJJzcgqDkm4xHZ3f9MrCgMB-msRbm8fKT7PsZavgZ4yJl_9hTJ3NUTHgmFYOGFlec961jMrOJcSvoHv5oBWAji8GINiDKU_0v_JPo5borQTv3jhOY2pwePP4NKJ0PYVxg3pFoolFqZsU3V7sZItD4ntoOD8Lkg0O2UV6oEAG9ZIuApjVqdodwz8Sah73Ak_v0xN-IoQP8GDt4OmYZQoWd7zBIckQfIBuy5CzgNx0meokfam2kwhYN0',
-                                ),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                        ],
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 16,
+                      ),
+                      child: CustomTopAppBar(
+                        title: 'Explore Stations',
+                        profileImageUrl:
+                            'https://lh3.googleusercontent.com/aida-public/AB6AXuDfmA772YTD-GSL31OxXmelhuAJJzcgqDkm4xHZ3f9MrCgMB-msRbm8fKT7PsZavgZ4yJl_9hTJ3NUTHgmFYOGFlec961jMrOJcSvoHv5oBWAji8GINiDKU_0v_JPo5borQTv3jhOY2pwePP4NKJ0PYVxg3pFoolFqZsU3V7sZItD4ntoOD8Lkg0O2UV6oEAG9ZIuApjVqdodwz8Sah73Ak_v0xN-IoQP8GDt4OmYZQoWd7zBIckQfIBuy5CzgNx0meokfam2kwhYN0',
                       ),
                     ),
-                    
+
                     // Interactive Map Section representation
                     Stack(
                       children: [
@@ -163,7 +146,9 @@ class _MapScreenState extends State<MapScreen> with SingleTickerProviderStateMix
                                 onPressed: () {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
-                                      content: Text('Locating user position...'),
+                                      content: Text(
+                                        'Locating user position...',
+                                      ),
                                       duration: Duration(milliseconds: 800),
                                     ),
                                   );
@@ -195,9 +180,12 @@ class _MapScreenState extends State<MapScreen> with SingleTickerProviderStateMix
                                 builder: (context, child) {
                                   return Container(
                                     width: 24 + (24 * _pulsingController.value),
-                                    height: 24 + (24 * _pulsingController.value),
+                                    height:
+                                        24 + (24 * _pulsingController.value),
                                     decoration: BoxDecoration(
-                                      color: AppTheme.primaryColor.withOpacity(0.2 * (1.0 - _pulsingController.value)),
+                                      color: AppTheme.primaryColor.withOpacity(
+                                        0.2 * (1.0 - _pulsingController.value),
+                                      ),
                                       shape: BoxShape.circle,
                                     ),
                                   );
@@ -227,7 +215,7 @@ class _MapScreenState extends State<MapScreen> with SingleTickerProviderStateMix
                         ),
                       ],
                     ),
-                    
+
                     // Search Bar Overlay floating at the top of the stations sheet
                     Transform.translate(
                       offset: const Offset(0, -28),
@@ -239,7 +227,7 @@ class _MapScreenState extends State<MapScreen> with SingleTickerProviderStateMix
                         ),
                       ),
                     ),
-                    
+
                     // Station List
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -312,7 +300,8 @@ class _MapScreenState extends State<MapScreen> with SingleTickerProviderStateMix
                                 Padding(
                                   padding: const EdgeInsets.all(24),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text(
@@ -339,7 +328,9 @@ class _MapScreenState extends State<MapScreen> with SingleTickerProviderStateMix
                               ],
                             ),
                           ),
-                          const SizedBox(height: 100), // padding for floating navbar
+                          const SizedBox(
+                            height: 100,
+                          ), // padding for floating navbar
                         ],
                       ),
                     ),

@@ -52,7 +52,9 @@ class StationCard extends StatelessWidget {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: isSelected ? AppTheme.primaryColor : AppTheme.surfaceContainer,
+                      color: isSelected
+                          ? AppTheme.primaryColor
+                          : AppTheme.surfaceContainer,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -90,16 +92,23 @@ class StationCard extends StatelessWidget {
                   // Distance chip
                   Container(
                     decoration: BoxDecoration(
-                      color: isSelected ? AppTheme.primaryColor : AppTheme.surfaceContainerHigh,
+                      color: isSelected
+                          ? AppTheme.primaryColor
+                          : AppTheme.surfaceContainerHigh,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     child: Text(
                       '${station.distance.toStringAsFixed(1)} km',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: isSelected ? Colors.white : AppTheme.secondaryColor,
+                        color: isSelected
+                            ? Colors.white
+                            : AppTheme.secondaryColor,
                       ),
                     ),
                   ),

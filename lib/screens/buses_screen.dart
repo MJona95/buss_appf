@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../core/database/local_database.dart';
 import '../core/theme/app_theme.dart';
 import '../models/bus_model.dart';
+import '../widgets/common/custom_top_app_bar.dart';
 import '../widgets/bus_unit_card.dart';
 
 class BusesScreen extends StatefulWidget {
@@ -47,9 +48,13 @@ class _BusesScreenState extends State<BusesScreen> {
       // Filter by Search Query (Number or Model)
       if (_searchQuery.isNotEmpty) {
         result = result
-            .where((bus) =>
-                bus.number.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-                bus.model.toLowerCase().contains(_searchQuery.toLowerCase()))
+            .where(
+              (bus) =>
+                  bus.number.toLowerCase().contains(
+                    _searchQuery.toLowerCase(),
+                  ) ||
+                  bus.model.toLowerCase().contains(_searchQuery.toLowerCase()),
+            )
             .toList();
       }
 
@@ -75,60 +80,25 @@ class _BusesScreenState extends State<BusesScreen> {
                 children: [
                   // Custom AppBar Header
                   Padding(
-                    padding: const EdgeInsets.only(left: 24, right: 24, top: 16, bottom: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              width: 48,
-                              height: 48,
-                              decoration: const BoxDecoration(
-                                color: AppTheme.surfaceContainer,
-                                shape: BoxShape.circle,
-                              ),
-                              child: IconButton(
-                                icon: const Icon(Icons.menu, color: AppTheme.onBackgroundColor),
-                                onPressed: () {},
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            const Text(
-                              'Unidades Disponibles',
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: -0.4,
-                                color: AppTheme.primaryColor,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: AppTheme.borderVariantColor.withOpacity(0.3),
-                              width: 1.0,
-                            ),
-                            image: const DecorationImage(
-                              image: NetworkImage(
-                                'https://lh3.googleusercontent.com/aida-public/AB6AXuBYWVZyhzmuT3XnSb3UR4urlHPLCPr18MIYPkGz9bwUFVPbCENoY31O5ZbhbeuT5iLLw1ZuPiGthmTU4K_2CS2WPzWjHssoyd2bJlZa0Ub96OjVJnL2MfXL6L4UBYUtF_JmS6UNtfVZUmxYW6UWP8Oq_VmwwNCuyDw5dQNFd28BVrRDgPCRiNykgB_iZQDTLe05yigOovx7CxKCc13P6MMVxaqZBB7adOJsPAiARcYKUeAHao8Yn1DxSGCC1L56pgcJJHDt4WCqJ7Ar',
-                              ),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                      ],
+                    padding: const EdgeInsets.only(
+                      left: 24,
+                      right: 24,
+                      top: 16,
+                      bottom: 8,
+                    ),
+                    child: CustomTopAppBar(
+                      title: 'Unidades Disponibles',
+                      profileImageUrl:
+                          'https://lh3.googleusercontent.com/aida-public/AB6AXuBYWVZyhzmuT3XnSb3UR4urlHPLCPr18MIYPkGz9bwUFVPbCENoY31O5ZbhbeuT5iLLw1ZuPiGthmTU4K_2CS2WPzWjHssoyd2bJlZa0Ub96OjVJnL2MfXL6L4UBYUtF_JmS6UNtfVZUmxYW6UWP8Oq_VmwwNCuyDw5dQNFd28BVrRDgPCRiNykgB_iZQDTLe05yigOovx7CxKCc13P6MMVxaqZBB7adOJsPAiARcYKUeAHao8Yn1DxSGCC1L56pgcJJHDt4WCqJ7Ar',
                     ),
                   ),
 
                   // Search bar & Filter Tabs Section
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
                     child: Column(
                       children: [
                         Container(
@@ -140,7 +110,10 @@ class _BusesScreenState extends State<BusesScreen> {
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Row(
                             children: [
-                              const Icon(Icons.search, color: AppTheme.secondaryColor),
+                              const Icon(
+                                Icons.search,
+                                color: AppTheme.secondaryColor,
+                              ),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: TextField(
@@ -197,7 +170,12 @@ class _BusesScreenState extends State<BusesScreen> {
                             ),
                           )
                         : ListView.builder(
-                            padding: const EdgeInsets.only(left: 24, right: 24, top: 8, bottom: 100),
+                            padding: const EdgeInsets.only(
+                              left: 24,
+                              right: 24,
+                              top: 8,
+                              bottom: 100,
+                            ),
                             itemCount: _filteredBuses.length,
                             itemBuilder: (context, index) {
                               return BusUnitCard(bus: _filteredBuses[index]);

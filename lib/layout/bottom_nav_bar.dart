@@ -101,7 +101,9 @@ class _NavBarItem extends StatelessWidget {
           ),
           child: Icon(
             icon,
-            color: isActive ? const Color(0xFF18181B) : const Color(0xFFA1A1AA), // White active, zinc-400 inactive
+            color: isActive
+                ? const Color(0xFF18181B)
+                : const Color(0xFFA1A1AA), // White active, zinc-400 inactive
             size: 24,
           ),
         ),

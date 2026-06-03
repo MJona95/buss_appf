@@ -7,14 +7,13 @@ import '../models/bus_model.dart';
 class BusUnitCard extends StatelessWidget {
   final BusModel bus;
 
-  const BusUnitCard({
-    super.key,
-    required this.bus,
-  });
+  const BusUnitCard({super.key, required this.bus});
 
   Future<void> _contactBus(BuildContext context) async {
     final rawNumber = bus.phoneNumber.replaceAll(RegExp(r'\+'), '');
-    final uri = Uri.parse('https://wa.me/$rawNumber?text=Hola%20Unidad%20${bus.number},%20me%20gustaria%20obtener%20informacion.');
+    final uri = Uri.parse(
+      'https://wa.me/$rawNumber?text=Hola%20Unidad%20${bus.number},%20me%20gustaria%20obtener%20informacion.',
+    );
     try {
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -25,7 +24,9 @@ class BusUnitCard extends StatelessWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('No se pudo abrir WhatsApp. Teléfono: ${bus.phoneNumber}'),
+            content: Text(
+              'No se pudo abrir WhatsApp. Teléfono: ${bus.phoneNumber}',
+            ),
           ),
         );
       }
@@ -51,7 +52,9 @@ class BusUnitCard extends StatelessWidget {
                     'https://lh3.googleusercontent.com/aida-public/AB6AXuBtUnxYol0ZhSbJ2UgrmSrKx58x5ZDO7XL3lV4uyr8FwMhWxBS42GassybZfNUqCK7QespJD7nQdPsKnKlTLqoGWnejAFvnrRdmuJyDhiK2TS9bN_md3dUYQmWKRlYR7Y2ZutA_AooEDWjIE1QmULjtrdyYPF7nxUdHrtiE7mcIfMjzhVZJY6qPA1ROppvDb7VTFqfxelf2dya43d8ZzHsrtEEJ5dEnhSXlbja1F9ijTtuCa6N1YB2gJ4qRInsbp2XoI1p-cOCkaKsH',
                     fit: BoxFit.cover,
                     color: bus.isEnServicio ? null : Colors.grey,
-                    colorBlendMode: bus.isEnServicio ? null : BlendMode.saturation,
+                    colorBlendMode: bus.isEnServicio
+                        ? null
+                        : BlendMode.saturation,
                     errorBuilder: (context, error, stackTrace) {
                       return const Center(
                         child: Icon(
@@ -75,7 +78,10 @@ class BusUnitCard extends StatelessWidget {
                         : AppTheme.surfaceContainerHigh.withOpacity(0.85),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -83,7 +89,9 @@ class BusUnitCard extends StatelessWidget {
                         width: 8,
                         height: 8,
                         decoration: BoxDecoration(
-                          color: bus.isEnServicio ? Colors.greenAccent : AppTheme.secondaryColor,
+                          color: bus.isEnServicio
+                              ? Colors.greenAccent
+                              : AppTheme.secondaryColor,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -91,7 +99,9 @@ class BusUnitCard extends StatelessWidget {
                       Text(
                         bus.status,
                         style: TextStyle(
-                          color: bus.isEnServicio ? Colors.white : AppTheme.primaryColor,
+                          color: bus.isEnServicio
+                              ? Colors.white
+                              : AppTheme.primaryColor,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
@@ -102,7 +112,7 @@ class BusUnitCard extends StatelessWidget {
               ),
             ],
           ),
-          
+
           Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
@@ -160,9 +170,9 @@ class BusUnitCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 20),
-                
+
                 // Operating Hours
                 Row(
                   children: [
@@ -197,9 +207,9 @@ class BusUnitCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // Current Location
                 Row(
                   children: [
@@ -234,9 +244,9 @@ class BusUnitCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Action WhatsApp Button or Blocked
                 if (bus.isEnServicio)
                   ContactButton(
@@ -254,7 +264,11 @@ class BusUnitCard extends StatelessWidget {
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.block, color: AppTheme.secondaryColor, size: 20),
+                        Icon(
+                          Icons.block,
+                          color: AppTheme.secondaryColor,
+                          size: 20,
+                        ),
                         SizedBox(width: 8),
                         Text(
                           'No Disponible',

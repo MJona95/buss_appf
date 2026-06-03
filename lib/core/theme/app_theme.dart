@@ -7,7 +7,7 @@ class AppTheme {
   static const Color onPrimaryColor = Colors.white;
   static const Color backgroundColor = Color(0xFFFAF9FE);
   static const Color onBackgroundColor = Color(0xFF1A1B1F);
-  
+
   static const Color secondaryColor = Color(0xFF5D5F5F);
   static const Color cardColor = Colors.white;
   static const Color borderVariantColor = Color(0xFFCFC4C5);

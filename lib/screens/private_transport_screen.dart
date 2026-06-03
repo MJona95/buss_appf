@@ -4,6 +4,7 @@ import '../core/database/local_database.dart';
 import '../core/theme/app_theme.dart';
 import '../models/booking_model.dart';
 import '../widgets/booking_form.dart';
+import '../widgets/common/custom_top_app_bar.dart';
 
 class PrivateTransportScreen extends StatefulWidget {
   const PrivateTransportScreen({super.key});
@@ -39,7 +40,11 @@ class _PrivateTransportScreenState extends State<PrivateTransportScreen> {
   }
 
   Future<void> _handleBookingSubmitted(
-      String pickup, String dropoff, String date, String time) async {
+    String pickup,
+    String dropoff,
+    String date,
+    String time,
+  ) async {
     setState(() {
       _isSubmitting = true;
     });
@@ -97,11 +102,18 @@ class _PrivateTransportScreenState extends State<PrivateTransportScreen> {
                       children: [
                         Text(
                           'Estimated Price:',
-                          style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.secondaryColor),
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.secondaryColor,
+                          ),
                         ),
                         Text(
                           '\$120.00 USD',
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.primaryColor,
+                          ),
                         ),
                       ],
                     ),
@@ -109,14 +121,23 @@ class _PrivateTransportScreenState extends State<PrivateTransportScreen> {
                   const SizedBox(height: 12),
                   const Text(
                     'Your chauffeur will pick you up at the specified time. Thank you for choosing Zenith Private.',
-                    style: TextStyle(fontSize: 12, color: AppTheme.secondaryColor),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppTheme.secondaryColor,
+                    ),
                   ),
                 ],
               ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Entendido', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                  child: const Text(
+                    'Entendido',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ],
             );
@@ -148,56 +169,13 @@ class _PrivateTransportScreenState extends State<PrivateTransportScreen> {
             children: [
               const SizedBox(height: 16),
               // TopAppBar Section
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: const BoxDecoration(
-                          color: AppTheme.surfaceContainer,
-                          shape: BoxShape.circle,
-                        ),
-                        child: IconButton(
-                          icon: const Icon(Icons.menu, color: AppTheme.onBackgroundColor),
-                          onPressed: () {},
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      const Text(
-                        'Zenith Transit',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: -0.4,
-                          color: AppTheme.primaryColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: AppTheme.borderVariantColor.withOpacity(0.3),
-                        width: 1.0,
-                      ),
-                      image: const DecorationImage(
-                        image: NetworkImage(
-                          'https://lh3.googleusercontent.com/aida-public/AB6AXuBH2WgqsEpeL1QuSPVvAAYOBZl8NGl3yvx92eoukJglOS0_IaEgRacG0nT40Kz5DfhuXsSMr33a_KwXS1RdeBZXwwSsY3pt2FR0l4LiIdSC6WWZ1v_OjjKiFJVYgQR2sQVOID08sB6nhg7wsC6L6c_19aNZVP7_YriFU2-U_0lVVUkTGJ1s-Va9ojUMduTs1fdHn-Gp1rUxmHecO2sI81yVAs-M1OfVwCRauX8Q9UHhE_wffDlwVIFhN9_eLPxP_TQZWuPMIN0RjW4F',
-                        ),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                ],
+              CustomTopAppBar(
+                title: 'Zenith Transit',
+                profileImageUrl:
+                    'https://lh3.googleusercontent.com/aida-public/AB6AXuBH2WgqsEpeL1QuSPVvAAYOBZl8NGl3yvx92eoukJglOS0_IaEgRacG0nT40Kz5DfhuXsSMr33a_KwXS1RdeBZXwwSsY3pt2FR0l4LiIdSC6WWZ1v_OjjKiFJVYgQR2sQVOID08sB6nhg7wsC6L6c_19aNZVP7_YriFU2-U_0lVVUkTGJ1s-Va9ojUMduTs1fdHn-Gp1rUxmHecO2sI81yVAs-M1OfVwCRauX8Q9UHhE_wffDlwVIFhN9_eLPxP_TQZWuPMIN0RjW4F',
               ),
               const SizedBox(height: 24),
-              
+
               // Hero Image card
               Container(
                 height: 220,
@@ -234,7 +212,10 @@ class _PrivateTransportScreenState extends State<PrivateTransportScreen> {
                           color: Colors.white.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
                         child: const Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -268,26 +249,38 @@ class _PrivateTransportScreenState extends State<PrivateTransportScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              
+
               // Features Grid Section
               Row(
                 children: [
-                  _buildFeatureCard(Icons.airport_shuttle, 'Luxury Vans', 'Premium fleet for private groups.'),
+                  _buildFeatureCard(
+                    Icons.airport_shuttle,
+                    'Luxury Vans',
+                    'Premium fleet for private groups.',
+                  ),
                   const SizedBox(width: 8),
-                  _buildFeatureCard(Icons.person_pin, 'Pro Chauffeurs', 'Vetted & professional drivers.'),
+                  _buildFeatureCard(
+                    Icons.person_pin,
+                    'Pro Chauffeurs',
+                    'Vetted & professional drivers.',
+                  ),
                   const SizedBox(width: 8),
-                  _buildFeatureCard(Icons.door_front_door_rounded, 'Door-to-door', 'Ultimate convenience & comfort.'),
+                  _buildFeatureCard(
+                    Icons.door_front_door_rounded,
+                    'Door-to-door',
+                    'Ultimate convenience & comfort.',
+                  ),
                 ],
               ),
               const SizedBox(height: 24),
-              
+
               // Booking Form
               BookingForm(
                 onSubmit: _handleBookingSubmitted,
                 isLoading: _isSubmitting,
               ),
               const SizedBox(height: 24),
-              
+
               // Why Zenith Section
               Container(
                 width: double.infinity,
@@ -308,16 +301,22 @@ class _PrivateTransportScreenState extends State<PrivateTransportScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    _buildWhyRow('Fixed pricing, no hidden fees or surge charges.'),
+                    _buildWhyRow(
+                      'Fixed pricing, no hidden fees or surge charges.',
+                    ),
                     const SizedBox(height: 8),
-                    _buildWhyRow('Complimentary wait time of 45 minutes at airports.'),
+                    _buildWhyRow(
+                      'Complimentary wait time of 45 minutes at airports.',
+                    ),
                     const SizedBox(height: 8),
-                    _buildWhyRow('24/7 Premium support for any travel changes.'),
+                    _buildWhyRow(
+                      '24/7 Premium support for any travel changes.',
+                    ),
                   ],
                 ),
               ),
               const SizedBox(height: 24),
-              
+
               // Local Bookings List Header
               const Text(
                 'Your Active Bookings',
@@ -328,7 +327,7 @@ class _PrivateTransportScreenState extends State<PrivateTransportScreen> {
                 ),
               ),
               const SizedBox(height: 12),
-              
+
               // Local Bookings List
               if (_isLoadingBookings)
                 const Center(child: CircularProgressIndicator())
@@ -365,11 +364,18 @@ class _PrivateTransportScreenState extends State<PrivateTransportScreen> {
                             children: [
                               Row(
                                 children: [
-                                  const Icon(Icons.airport_shuttle, size: 16, color: AppTheme.primaryColor),
+                                  const Icon(
+                                    Icons.airport_shuttle,
+                                    size: 16,
+                                    color: AppTheme.primaryColor,
+                                  ),
                                   const SizedBox(width: 6),
                                   Text(
                                     'ID: ${b.id.substring(0, 7)}',
-                                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 12,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -378,10 +384,17 @@ class _PrivateTransportScreenState extends State<PrivateTransportScreen> {
                                   color: Colors.black12,
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
                                 child: Text(
                                   b.status,
-                                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black),
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
                                 ),
                               ),
                             ],
@@ -389,12 +402,19 @@ class _PrivateTransportScreenState extends State<PrivateTransportScreen> {
                           const Divider(height: 20),
                           Row(
                             children: [
-                              const Icon(Icons.circle, size: 8, color: Colors.black),
+                              const Icon(
+                                Icons.circle,
+                                size: 8,
+                                color: Colors.black,
+                              ),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
                                   'Pick-up: ${b.pickupLocation}',
-                                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                               ),
                             ],
@@ -402,12 +422,19 @@ class _PrivateTransportScreenState extends State<PrivateTransportScreen> {
                           const SizedBox(height: 4),
                           Row(
                             children: [
-                              const Icon(Icons.place, size: 10, color: Colors.black54),
+                              const Icon(
+                                Icons.place,
+                                size: 10,
+                                color: Colors.black54,
+                              ),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
                                   'Drop-off: ${b.dropoffLocation}',
-                                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                               ),
                             ],
@@ -418,11 +445,17 @@ class _PrivateTransportScreenState extends State<PrivateTransportScreen> {
                             children: [
                               Text(
                                 'Fecha: ${b.departureDate}',
-                                style: const TextStyle(fontSize: 12, color: AppTheme.secondaryColor),
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: AppTheme.secondaryColor,
+                                ),
                               ),
                               Text(
                                 'Hora: ${b.pickupTime}',
-                                style: const TextStyle(fontSize: 12, color: AppTheme.secondaryColor),
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: AppTheme.secondaryColor,
+                                ),
                               ),
                             ],
                           ),
@@ -446,7 +479,9 @@ class _PrivateTransportScreenState extends State<PrivateTransportScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppTheme.borderVariantColor.withOpacity(0.15)),
+          border: Border.all(
+            color: AppTheme.borderVariantColor.withOpacity(0.15),
+          ),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
         child: Column(
@@ -496,10 +531,7 @@ class _PrivateTransportScreenState extends State<PrivateTransportScreen> {
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 13,
-            ),
+            style: const TextStyle(color: Colors.white70, fontSize: 13),
           ),
         ),
       ],

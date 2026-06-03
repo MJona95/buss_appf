@@ -125,11 +125,7 @@ class CustomTextField extends StatelessWidget {
           Row(
             children: [
               if (prefixIcon != null) ...[
-                Icon(
-                  prefixIcon,
-                  size: 16,
-                  color: AppTheme.secondaryColor,
-                ),
+                Icon(prefixIcon, size: 16, color: AppTheme.secondaryColor),
                 const SizedBox(width: 4),
               ],
               Text(

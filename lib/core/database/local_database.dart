@@ -25,11 +25,7 @@ class LocalDatabase {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    return await openDatabase(
-      path,
-      version: 1,
-      onCreate: _createDB,
-    );
+    return await openDatabase(path, version: 1, onCreate: _createDB);
   }
 
   Future _createDB(Database db, int version) async {
@@ -163,7 +159,7 @@ class LocalDatabase {
           'distance': 1.8,
           'next_route': 'Route 15',
           'next_time_mins': 12,
-        }
+        },
       ];
     }
 
@@ -198,7 +194,7 @@ class LocalDatabase {
           'current_location': 'Terminal Central del Norte',
           'phone_number': '+521234567890',
           'status': 'En Servicio',
-        }
+        },
       ];
     }
   }

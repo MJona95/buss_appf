@@ -4,7 +4,8 @@ import 'common/custom_button.dart';
 import 'common/custom_text_field.dart';
 
 class BookingForm extends StatefulWidget {
-  final Function(String pickup, String dropoff, String date, String time) onSubmit;
+  final Function(String pickup, String dropoff, String date, String time)
+  onSubmit;
   final bool isLoading;
 
   const BookingForm({
@@ -57,7 +58,8 @@ class _BookingFormState extends State<BookingForm> {
     if (picked != null && picked != _selectedDate) {
       setState(() {
         _selectedDate = picked;
-        _dateController.text = "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
+        _dateController.text =
+            "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
       });
     }
   }
@@ -129,7 +131,10 @@ class _BookingFormState extends State<BookingForm> {
         children: [
           Row(
             children: [
-              const Icon(Icons.edit_calendar_rounded, color: AppTheme.primaryColor),
+              const Icon(
+                Icons.edit_calendar_rounded,
+                color: AppTheme.primaryColor,
+              ),
               const SizedBox(width: 8),
               const Text(
                 'Book Your Journey',
@@ -142,7 +147,7 @@ class _BookingFormState extends State<BookingForm> {
             ],
           ),
           const SizedBox(height: 24),
-          
+
           // Pick-up Location input
           CustomTextField(
             label: 'Pick-up Location',
@@ -151,7 +156,7 @@ class _BookingFormState extends State<BookingForm> {
             prefixIcon: Icons.location_on,
           ),
           const SizedBox(height: 16),
-          
+
           // Drop-off Location input
           CustomTextField(
             label: 'Drop-off Location',
@@ -160,7 +165,7 @@ class _BookingFormState extends State<BookingForm> {
             prefixIcon: Icons.flag,
           ),
           const SizedBox(height: 16),
-          
+
           // Date & Time pickers side-by-side
           Row(
             children: [
@@ -188,13 +193,17 @@ class _BookingFormState extends State<BookingForm> {
             ],
           ),
           const SizedBox(height: 24),
-          
+
           // Request Quote Action Button
           PrimaryButton(
             text: 'Request Quote',
             isLoading: widget.isLoading,
             onPressed: _submitForm,
-            icon: const Icon(Icons.arrow_forward, color: Colors.white, size: 20),
+            icon: const Icon(
+              Icons.arrow_forward,
+              color: Colors.white,
+              size: 20,
+            ),
           ),
         ],
       ),

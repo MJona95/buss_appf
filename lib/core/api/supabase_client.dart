@@ -4,7 +4,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class SupabaseManager {
   // Replace these placeholders with your actual Supabase credentials.
   static const String supabaseUrl = 'https://placeholder-project.supabase.co';
-  static const String supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder-anon-key';
+  static const String supabaseAnonKey =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder-anon-key';
 
   static bool _initialized = false;
 
@@ -13,19 +14,20 @@ class SupabaseManager {
   static Future<void> initialize() async {
     // If the values are still the placeholders, skip native init to avoid crash.
     if (supabaseUrl.contains('placeholder-project')) {
-      debugPrint('Supabase: Using placeholder credentials. Remote sync will be mocked.');
+      debugPrint(
+        'Supabase: Using placeholder credentials. Remote sync will be mocked.',
+      );
       return;
     }
 
     try {
-      await Supabase.initialize(
-        url: supabaseUrl,
-        anonKey: supabaseAnonKey,
-      );
+      await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
       _initialized = true;
       debugPrint('Supabase initialized successfully.');
     } catch (e) {
-      debugPrint('Supabase initialization failed: $e. Running in offline/mock remote mode.');
+      debugPrint(
+        'Supabase initialization failed: $e. Running in offline/mock remote mode.',
+      );
       _initialized = false;
     }
   }
@@ -37,10 +39,12 @@ class SupabaseManager {
     if (!_initialized) {
       // Simulate remote network delay
       await Future.delayed(const Duration(milliseconds: 800));
-      debugPrint('Supabase: Remote sync simulated for booking: ${booking['id']}');
+      debugPrint(
+        'Supabase: Remote sync simulated for booking: ${booking['id']}',
+      );
       return true;
     }
-    
+
     try {
       await Supabase.instance.client.from('bookings').insert(booking);
       return true;

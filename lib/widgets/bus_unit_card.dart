@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../core/theme/app_theme.dart';
 import 'common/custom_button.dart';
+import 'common/custom_badge.dart';
+import 'common/custom_card.dart';
 import '../models/bus_model.dart';
 
 class BusUnitCard extends StatelessWidget {
@@ -35,9 +37,10 @@ class BusUnitCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return CustomCard(
       margin: const EdgeInsets.only(bottom: 24),
-      clipBehavior: Clip.antiAlias,
+      padding: EdgeInsets.zero,
+      borderRadius: AppTheme.cardRadius,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -71,43 +74,9 @@ class BusUnitCard extends StatelessWidget {
               Positioned(
                 top: 16,
                 left: 16,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: bus.isEnServicio
-                        ? Colors.black.withOpacity(0.75)
-                        : AppTheme.surfaceContainerHigh.withOpacity(0.85),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: bus.isEnServicio
-                              ? Colors.greenAccent
-                              : AppTheme.secondaryColor,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        bus.status,
-                        style: TextStyle(
-                          color: bus.isEnServicio
-                              ? Colors.white
-                              : AppTheme.primaryColor,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
+                child: CustomBadge(
+                  label: bus.status,
+                  isSuccess: bus.isEnServicio,
                 ),
               ),
             ],

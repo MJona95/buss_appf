@@ -128,12 +128,16 @@ class CustomTextField extends StatelessWidget {
                 Icon(prefixIcon, size: 16, color: AppTheme.secondaryColor),
                 const SizedBox(width: 4),
               ],
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.secondaryColor,
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.secondaryColor,
+                  ),
                 ),
               ),
             ],

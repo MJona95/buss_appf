@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
+import 'custom_avatar.dart';
 
 class CustomTopAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String? title;
@@ -75,20 +76,9 @@ class CustomTopAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
               const SizedBox(width: 12),
             ],
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: AppTheme.borderVariantColor.withOpacity(0.3),
-                  width: 1.0,
-                ),
-                image: DecorationImage(
-                  image: NetworkImage(profileImageUrl),
-                  fit: BoxFit.cover,
-                ),
-              ),
+            CustomAvatar(
+              imageUrl: profileImageUrl,
+              size: 40,
             ),
           ],
         ),

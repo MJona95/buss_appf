@@ -1,8 +1,14 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../core/api/google_maps_api.dart';
 import '../core/database/local_database.dart';
 import '../core/theme/app_theme.dart';
 import '../widgets/common/custom_text_field.dart';
 import '../widgets/common/custom_top_app_bar.dart';
+import '../widgets/common/custom_card.dart';
 import '../models/station_model.dart';
 import '../widgets/station_card.dart';
 
@@ -15,44 +21,127 @@ class MapScreen extends StatefulWidget {
   State<MapScreen> createState() => _MapScreenState();
 }
 
-class _MapScreenState extends State<MapScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _pulsingController;
+class _MapScreenState extends State<MapScreen> {
   List<StationModel> _allStations = [];
   List<StationModel> _displayedStations = [];
   String? _selectedStationId;
   bool _isLoading = true;
+  bool _myLocationEnabled = false;
+
+  GoogleMapController? _mapController;
+  final Set<Marker> _markers = {};
+
+  static const CameraPosition _initialCameraPosition = CameraPosition(
+    target: LatLng(12.865416, -86.273062), // Center of Nicaragua
+    zoom: 8.0,
+  );
 
   @override
   void initState() {
     super.initState();
-    // Initialize pulsing animation for the map marker
-    _pulsingController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
+    debugPrint(
+      'Initializing Map Screen. Configuration endpoint: ${GoogleMapsApi.staticMapUrl}',
     );
-    if (widget.isActive) {
-      _pulsingController.repeat();
-    }
-
     _loadStations();
+    _checkLocationPermission();
   }
 
-  @override
-  void didUpdateWidget(MapScreen oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.isActive != oldWidget.isActive) {
-      if (widget.isActive) {
-        _pulsingController.repeat();
-      } else {
-        _pulsingController.stop();
+  Future<void> _checkLocationPermission() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return;
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return;
+      }
+    }
+    
+    if (permission == LocationPermission.deniedForever) {
+      return;
+    } 
+
+    if (mounted) {
+      setState(() {
+        _myLocationEnabled = true;
+      });
+    }
+  }
+
+  Future<void> _centerOnUserLocation() async {
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Location services are disabled.')),
+          );
+        }
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Location permissions are denied.')),
+            );
+          }
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Location permissions are permanently denied.'),
+            ),
+          );
+        }
+        return;
+      }
+
+      if (mounted) {
+        setState(() {
+          _myLocationEnabled = true;
+        });
+      }
+
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
+      );
+
+      _mapController?.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: LatLng(position.latitude, position.longitude),
+            zoom: 15.0,
+          ),
+        ),
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error getting location: $e')),
+        );
       }
     }
   }
 
   @override
   void dispose() {
-    _pulsingController.dispose();
+    _mapController?.dispose();
     super.dispose();
   }
 
@@ -68,13 +157,61 @@ class _MapScreenState extends State<MapScreen>
           _selectedStationId = _displayedStations.first.id;
         }
         _isLoading = false;
+        _buildMarkers();
       });
+
+      if (_displayedStations.isNotEmpty) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _animateToStation(_displayedStations.first);
+        });
+      }
     } catch (e) {
       debugPrint('Error loading stations: $e');
       setState(() {
         _isLoading = false;
       });
     }
+  }
+
+  void _buildMarkers() {
+    setState(() {
+      _markers.clear();
+      for (final station in _displayedStations) {
+        _markers.add(
+          Marker(
+            markerId: MarkerId(station.id),
+            position: LatLng(station.latitude, station.longitude),
+            infoWindow: InfoWindow(
+              title: station.name,
+              snippet: station.address,
+            ),
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+              _selectedStationId == station.id
+                  ? BitmapDescriptor.hueRed
+                  : BitmapDescriptor.hueAzure,
+            ),
+            onTap: () {
+              setState(() {
+                _selectedStationId = station.id;
+                _buildMarkers();
+              });
+              _animateToStation(station);
+            },
+          ),
+        );
+      }
+    });
+  }
+
+  void _animateToStation(StationModel station) {
+    _mapController?.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: LatLng(station.latitude, station.longitude),
+          zoom: 14.5,
+        ),
+      ),
+    );
   }
 
   void _searchStations(String query) {
@@ -90,6 +227,7 @@ class _MapScreenState extends State<MapScreen>
             )
             .toList();
       }
+      _buildMarkers();
     });
   }
 
@@ -119,16 +257,31 @@ class _MapScreenState extends State<MapScreen>
                     // Interactive Map Section representation
                     Stack(
                       children: [
-                        Container(
-                          height: MediaQuery.of(context).size.height * 0.35,
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.55,
                           width: double.infinity,
-                          decoration: const BoxDecoration(
-                            image: DecorationImage(
-                              image: NetworkImage(
-                                'https://lh3.googleusercontent.com/aida-public/AB6AXuCzZRu6ib6N6hqP0MOblKyLdifx3JaiRgQdp2eWNJQX24sOhpSY1ryYMVz0IDQg2Im9UODJ4X-JXk4ItDE2eBkBgYsRauZVPQ8KkLSW5MTUW8ea24oW3TKnmOe7q9UUflWcdGE4GsoLyC-rjxGksX_qQUtS_2m-uh284bIyy2hfpSb24hH8PNFltk-XqeP9goSvPCmj_ErcgE4jo8eB14zVrnkMqwnKl0jIHZVvgMyqx7MK8Pn-mymTlp23kbcWEycohMYLnNou-a6R',
+                          child: GoogleMap(
+                            initialCameraPosition: _initialCameraPosition,
+                            markers: _markers,
+                            onMapCreated: (controller) {
+                              _mapController = controller;
+                              if (_selectedStationId != null) {
+                                final selected = _allStations.firstWhere(
+                                  (s) => s.id == _selectedStationId,
+                                  orElse: () => _allStations.first,
+                                );
+                                _animateToStation(selected);
+                              }
+                            },
+                            myLocationEnabled: _myLocationEnabled,
+                            myLocationButtonEnabled: false,
+                            zoomControlsEnabled: false,
+                            mapToolbarEnabled: false,
+                            gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
+                              Factory<OneSequenceGestureRecognizer>(
+                                () => EagerGestureRecognizer(),
                               ),
-                              fit: BoxFit.cover,
-                            ),
+                            },
                           ),
                         ),
                         // Floating Map Actions
@@ -137,25 +290,48 @@ class _MapScreenState extends State<MapScreen>
                           right: 24,
                           child: Column(
                             children: [
+                              // Zoom In Button
+                              FloatingActionButton.small(
+                                heroTag: 'zoom_in',
+                                backgroundColor: Colors.white.withOpacity(0.9),
+                                foregroundColor: AppTheme.primaryColor,
+                                elevation: 4,
+                                shape: const CircleBorder(),
+                                onPressed: () {
+                                  _mapController?.animateCamera(
+                                    CameraUpdate.zoomIn(),
+                                  );
+                                },
+                                child: const Icon(Icons.add),
+                              ),
+                              const SizedBox(height: 8),
+                              // Zoom Out Button
+                              FloatingActionButton.small(
+                                heroTag: 'zoom_out',
+                                backgroundColor: Colors.white.withOpacity(0.9),
+                                foregroundColor: AppTheme.primaryColor,
+                                elevation: 4,
+                                shape: const CircleBorder(),
+                                onPressed: () {
+                                  _mapController?.animateCamera(
+                                    CameraUpdate.zoomOut(),
+                                  );
+                                },
+                                child: const Icon(Icons.remove),
+                              ),
+                              const SizedBox(height: 8),
+                              // My Location (Center) Button
                               FloatingActionButton.small(
                                 heroTag: 'my_loc',
                                 backgroundColor: Colors.white.withOpacity(0.9),
                                 foregroundColor: AppTheme.primaryColor,
                                 elevation: 4,
                                 shape: const CircleBorder(),
-                                onPressed: () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                        'Locating user position...',
-                                      ),
-                                      duration: Duration(milliseconds: 800),
-                                    ),
-                                  );
-                                },
+                                onPressed: _centerOnUserLocation,
                                 child: const Icon(Icons.my_location),
                               ),
-                              const SizedBox(height: 12),
+                              const SizedBox(height: 8),
+                              // Add Station (Placeholder) Button
                               FloatingActionButton.small(
                                 heroTag: 'add_station',
                                 backgroundColor: AppTheme.primaryColor,
@@ -163,52 +339,7 @@ class _MapScreenState extends State<MapScreen>
                                 elevation: 4,
                                 shape: const CircleBorder(),
                                 onPressed: () {},
-                                child: const Icon(Icons.add),
-                              ),
-                            ],
-                          ),
-                        ),
-                        // Pulsing location marker
-                        Positioned(
-                          top: MediaQuery.of(context).size.height * 0.17,
-                          left: MediaQuery.of(context).size.width * 0.5 - 12,
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              AnimatedBuilder(
-                                animation: _pulsingController,
-                                builder: (context, child) {
-                                  return Container(
-                                    width: 24 + (24 * _pulsingController.value),
-                                    height:
-                                        24 + (24 * _pulsingController.value),
-                                    decoration: BoxDecoration(
-                                      color: AppTheme.primaryColor.withOpacity(
-                                        0.2 * (1.0 - _pulsingController.value),
-                                      ),
-                                      shape: BoxShape.circle,
-                                    ),
-                                  );
-                                },
-                              ),
-                              Container(
-                                width: 14,
-                                height: 14,
-                                decoration: BoxDecoration(
-                                  color: AppTheme.primaryColor,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 3,
-                                  ),
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      color: Colors.black26,
-                                      blurRadius: 4,
-                                      offset: Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
+                                child: const Icon(Icons.add_location_alt),
                               ),
                             ],
                           ),
@@ -273,59 +404,63 @@ class _MapScreenState extends State<MapScreen>
                                 onTap: () {
                                   setState(() {
                                     _selectedStationId = station.id;
+                                    _buildMarkers();
                                   });
+                                  _animateToStation(station);
                                 },
                               ),
                             ),
                           const SizedBox(height: 24),
                           // Premium fleet banner
-                          Container(
-                            height: 128,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: AppTheme.primaryColor,
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Stack(
-                              children: [
-                                const Positioned(
-                                  right: -20,
-                                  bottom: -20,
-                                  child: Icon(
-                                    Icons.bolt_rounded,
-                                    size: 140,
-                                    color: Colors.white10,
+                          CustomCard(
+                            borderRadius: 16,
+                            backgroundColor: AppTheme.primaryColor,
+                            borderColor: Colors.transparent,
+                            padding: EdgeInsets.zero,
+                            child: SizedBox(
+                              height: 128,
+                              width: double.infinity,
+                              child: Stack(
+                                children: [
+                                  const Positioned(
+                                    right: -20,
+                                    bottom: -20,
+                                    child: Icon(
+                                      Icons.bolt_rounded,
+                                      size: 140,
+                                      color: Colors.white10,
+                                    ),
                                   ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(24),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        'ZENITH EXCLUSIVE',
-                                        style: TextStyle(
-                                          color: Colors.white.withOpacity(0.7),
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                          letterSpacing: 1.0,
+                                  Padding(
+                                    padding: const EdgeInsets.all(24),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          'ZENITH EXCLUSIVE',
+                                          style: TextStyle(
+                                            color: Colors.white.withOpacity(0.7),
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                            letterSpacing: 1.0,
+                                          ),
                                         ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      const Text(
-                                        'Live-tracked Premium Fleet',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.w700,
+                                        const SizedBox(height: 4),
+                                        const Text(
+                                          'Live-tracked Premium Fleet',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w700,
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                           const SizedBox(

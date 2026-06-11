@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../core/theme/app_theme.dart';
 import '../widgets/common/custom_text_field.dart';
 import '../widgets/common/custom_top_app_bar.dart';
+import '../widgets/common/custom_card.dart';
 import '../models/trip_model.dart';
 import '../widgets/trip_card.dart';
 
@@ -15,14 +16,14 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String selectedCategory = 'Bus Travel';
+  String selectedCategory = 'Todos';
 
-  final List<String> categories = ['Bus Travel', 'Air', 'Train', 'Car'];
+  final List<String> categories = ['Todos', 'Express', 'Urbano', 'Interurbano'];
   final List<IconData> categoryIcons = [
     Icons.directions_bus,
-    Icons.flight,
-    Icons.train,
-    Icons.directions_car,
+    Icons.bolt,
+    Icons.location_city,
+    Icons.map,
   ];
 
   // Raw mock list matching the Design file specifications
@@ -192,54 +193,59 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     return Padding(
                       padding: const EdgeInsets.only(right: 12),
-                      child: InkWell(
+                      child: CustomCard(
+                        borderRadius: 24,
+                        backgroundColor: isActive
+                            ? AppTheme.primaryColor
+                            : Colors.white,
+                        borderColor: isActive
+                            ? AppTheme.primaryColor
+                            : AppTheme.borderVariantColor.withOpacity(0.2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 8,
+                        ),
                         onTap: () {
                           setState(() {
                             selectedCategory = catName;
+                            if (catName == 'Todos') {
+                              _trips = List.from(_allTrips);
+                            } else if (catName == 'Express') {
+                              _trips = _allTrips
+                                  .where((t) => t.companyName == 'NILDOWS')
+                                  .toList();
+                            } else if (catName == 'Urbano') {
+                              _trips = _allTrips
+                                  .where((t) => t.companyName == 'City Coach')
+                                  .toList();
+                            } else {
+                              _trips = _allTrips
+                                  .where((t) => t.isAvailable)
+                                  .toList();
+                            }
                           });
                         },
-                        borderRadius: BorderRadius.circular(24),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isActive
-                                ? AppTheme.primaryColor
-                                : Colors.white,
-                            borderRadius: BorderRadius.circular(24),
-                            border: Border.all(
+                        child: Row(
+                          children: [
+                            Icon(
+                              catIcon,
                               color: isActive
-                                  ? AppTheme.primaryColor
-                                  : AppTheme.borderVariantColor.withOpacity(
-                                      0.2,
-                                    ),
-                              width: 1.0,
+                                  ? Colors.white
+                                  : AppTheme.primaryColor,
+                              size: 20,
                             ),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                catIcon,
+                            const SizedBox(width: 8),
+                            Text(
+                              catName,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
                                 color: isActive
                                     ? Colors.white
-                                    : AppTheme.primaryColor,
-                                size: 20,
+                                    : AppTheme.onBackgroundColor,
                               ),
-                              const SizedBox(width: 8),
-                              Text(
-                                catName,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: isActive
-                                      ? Colors.white
-                                      : AppTheme.onBackgroundColor,
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                     );

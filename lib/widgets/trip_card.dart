@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../core/theme/app_theme.dart';
 import 'common/custom_button.dart';
+import 'common/custom_card.dart';
+import 'common/custom_badge.dart';
 import '../models/trip_model.dart';
 
 class TripCard extends StatelessWidget {
@@ -19,24 +21,10 @@ class TripCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Opacity(
       opacity: trip.isAvailable ? 1.0 : 0.7,
-      child: Container(
+      child: CustomCard(
         margin: const EdgeInsets.only(bottom: 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: AppTheme.borderVariantColor.withOpacity(0.2),
-            width: 1.0,
-          ),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x0A000000),
-              blurRadius: 30,
-              offset: Offset(0, 10),
-            ),
-          ],
-        ),
         padding: const EdgeInsets.all(16),
+        borderRadius: 24,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -70,33 +58,14 @@ class TripCard extends StatelessWidget {
                 Positioned(
                   top: 12,
                   left: 12,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.9),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.star_rounded,
-                          color: Colors.amber,
-                          size: 18,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          trip.rating.toStringAsFixed(1),
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.onBackgroundColor,
-                          ),
-                        ),
-                      ],
+                  child: CustomBadge(
+                    label: trip.rating.toStringAsFixed(1),
+                    backgroundColor: Colors.white.withOpacity(0.9),
+                    textColor: AppTheme.onBackgroundColor,
+                    leading: const Icon(
+                      Icons.star_rounded,
+                      color: Colors.amber,
+                      size: 18,
                     ),
                   ),
                 ),

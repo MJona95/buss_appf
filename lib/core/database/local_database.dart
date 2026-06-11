@@ -25,7 +25,17 @@ class LocalDatabase {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    return await openDatabase(path, version: 1, onCreate: _createDB);
+    return await openDatabase(
+      path,
+      version: 2,
+      onCreate: _createDB,
+      onUpgrade: (db, oldVersion, newVersion) async {
+        await db.execute('DROP TABLE IF EXISTS stations');
+        await db.execute('DROP TABLE IF EXISTS buses');
+        await db.execute('DROP TABLE IF EXISTS bookings');
+        await _createDB(db, newVersion);
+      },
+    );
   }
 
   Future _createDB(Database db, int version) async {
@@ -76,27 +86,35 @@ class LocalDatabase {
     // Seed stations
     await db.insert('stations', {
       'id': 'st_1',
-      'name': 'Central Station',
-      'address': '422 Grand Ave, Downtown',
-      'distance': 0.4,
-      'next_route': 'Route 42',
-      'next_time_mins': 3,
+      'name': 'Terminal de Buses de Somoto',
+      'address': 'Carretera Panamericana, Somoto',
+      'distance': 0.0,
+      'next_route': 'Ruta Expreso 42',
+      'next_time_mins': 15,
     });
     await db.insert('stations', {
       'id': 'st_2',
-      'name': 'North Terminal',
-      'address': '88 Skyway Blvd, North Park',
-      'distance': 1.2,
-      'next_route': 'Route 101',
-      'next_time_mins': 8,
+      'name': 'Terminal COTRAN Sur (Estelí)',
+      'address': 'Carretera Panamericana, Estelí',
+      'distance': 0.0,
+      'next_route': 'Ruta Expreso Estelí-Managua',
+      'next_time_mins': 25,
     });
     await db.insert('stations', {
       'id': 'st_3',
-      'name': 'Market Square',
-      'address': '15 Trade St, West End',
-      'distance': 1.8,
-      'next_route': 'Route 15',
-      'next_time_mins': 12,
+      'name': 'Terminal de Buses de Ocotal',
+      'address': 'Avenida General Sandino, Ocotal',
+      'distance': 0.0,
+      'next_route': 'Ruta Expreso Ocotal-Managua',
+      'next_time_mins': 45,
+    });
+    await db.insert('stations', {
+      'id': 'st_4',
+      'name': 'Terminal El Mayoreo (Managua)',
+      'address': 'Pista El Mayoreo, Managua',
+      'distance': 0.0,
+      'next_route': 'Ruta Local Metropolitana',
+      'next_time_mins': 5,
     });
 
     // Seed buses
@@ -138,27 +156,35 @@ class LocalDatabase {
       _webStations = [
         {
           'id': 'st_1',
-          'name': 'Central Station',
-          'address': '422 Grand Ave, Downtown',
-          'distance': 0.4,
-          'next_route': 'Route 42',
-          'next_time_mins': 3,
+          'name': 'Terminal de Buses de Somoto',
+          'address': 'Carretera Panamericana, Somoto',
+          'distance': 0.0,
+          'next_route': 'Ruta Expreso 42',
+          'next_time_mins': 15,
         },
         {
           'id': 'st_2',
-          'name': 'North Terminal',
-          'address': '88 Skyway Blvd, North Park',
-          'distance': 1.2,
-          'next_route': 'Route 101',
-          'next_time_mins': 8,
+          'name': 'Terminal COTRAN Sur (Estelí)',
+          'address': 'Carretera Panamericana, Estelí',
+          'distance': 0.0,
+          'next_route': 'Ruta Expreso Estelí-Managua',
+          'next_time_mins': 25,
         },
         {
           'id': 'st_3',
-          'name': 'Market Square',
-          'address': '15 Trade St, West End',
-          'distance': 1.8,
-          'next_route': 'Route 15',
-          'next_time_mins': 12,
+          'name': 'Terminal de Buses de Ocotal',
+          'address': 'Avenida General Sandino, Ocotal',
+          'distance': 0.0,
+          'next_route': 'Ruta Expreso Ocotal-Managua',
+          'next_time_mins': 45,
+        },
+        {
+          'id': 'st_4',
+          'name': 'Terminal El Mayoreo (Managua)',
+          'address': 'Pista El Mayoreo, Managua',
+          'distance': 0.0,
+          'next_route': 'Ruta Local Metropolitana',
+          'next_time_mins': 5,
         },
       ];
     }

@@ -14,14 +14,15 @@ The project has been refactored to follow a flat layered architecture grouping c
   - **`theme/app_theme.dart`**: Configures the achromatic light-mode theme using the geometric `Plus Jakarta Sans` Google font, with default styles for inputs, cards, and text hierarchy.
   - **`database/local_database.dart`**: Wrapper around `sqflite` initializing the SQL tables (`stations`, `buses`, `bookings`) and inserting seed data. Features a transparent Web fallback that uses in-memory lists if run target is the Web (`kIsWeb`).
   - **`api/supabase_client.dart`**: Connects to the Supabase client API. Contains a safety handler that prevents crash blocks if anon keys are not defined, falling back to database caching mock simulations.
+  - **`api/google_maps_api.dart`**: Central repository for Google Maps config, including API key, endpoints, and static map thumbnail builders.
 - **`lib/models/`**: Shared entity data models.
   - `trip_model.dart`: Trip details for home exploration.
-  - `station_model.dart`: Station locations and timetables.
+  - `station_model.dart`: Station locations and timetables (includes geographic coordinate mappings).
   - `bus_model.dart`: Public transit fleet models.
   - `booking_model.dart`: Private transport request parameters.
 - **`lib/screens/`**: Staging of the 4 main application panels.
   - `home_screen.dart`: General trip feed explorer.
-  - `map_screen.dart`: Nearby station list and location markers.
+  - `map_screen.dart`: Interactive Google Map loading dynamic markers for stations from SQLite, with camera animation and search indexing.
   - `buses_screen.dart`: Bus fleets directories.
   - `private_transport_screen.dart`: Form actions to book executive travel.
 - **`lib/widgets/`**: Standalone UI views and elements.

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../core/theme/app_theme.dart';
 import 'common/custom_button.dart';
 import 'common/custom_text_field.dart';
+import 'common/custom_card.dart';
 
 class BookingForm extends StatefulWidget {
   final Function(String pickup, String dropoff, String date, String time)
@@ -109,22 +110,8 @@ class _BookingFormState extends State<BookingForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: AppTheme.borderVariantColor.withOpacity(0.2),
-          width: 1.0,
-        ),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x06000000),
-            blurRadius: 30,
-            offset: Offset(0, 10),
-          ),
-        ],
-      ),
+    return CustomCard(
+      borderRadius: 24,
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

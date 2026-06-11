@@ -3,6 +3,7 @@ import '../core/database/local_database.dart';
 import '../core/theme/app_theme.dart';
 import '../models/bus_model.dart';
 import '../widgets/common/custom_top_app_bar.dart';
+import '../widgets/common/custom_text_field.dart';
 import '../widgets/bus_unit_card.dart';
 
 class BusesScreen extends StatefulWidget {
@@ -101,42 +102,12 @@ class _BusesScreenState extends State<BusesScreen> {
                     ),
                     child: Column(
                       children: [
-                        Container(
-                          height: 56,
-                          decoration: BoxDecoration(
-                            color: AppTheme.surfaceContainerLow,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.search,
-                                color: AppTheme.secondaryColor,
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: TextField(
-                                  onChanged: (val) {
-                                    _searchQuery = val;
-                                    _applyFilters();
-                                  },
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  decoration: const InputDecoration(
-                                    hintText: 'Buscar unidad por número...',
-                                    hintStyle: TextStyle(
-                                      color: AppTheme.secondaryColor,
-                                      fontSize: 15,
-                                    ),
-                                    border: InputBorder.none,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                        SearchTextField(
+                          placeholder: 'Buscar unidad por número...',
+                          onChanged: (val) {
+                            _searchQuery = val;
+                            _applyFilters();
+                          },
                         ),
                         const SizedBox(height: 16),
                         // Filter Tabs list

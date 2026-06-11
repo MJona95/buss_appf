@@ -5,6 +5,8 @@ import '../core/theme/app_theme.dart';
 import '../models/booking_model.dart';
 import '../widgets/booking_form.dart';
 import '../widgets/common/custom_top_app_bar.dart';
+import '../widgets/common/custom_card.dart';
+import '../widgets/common/custom_badge.dart';
 
 class PrivateTransportScreen extends StatefulWidget {
   const PrivateTransportScreen({super.key});
@@ -207,30 +209,11 @@ class _PrivateTransportScreenState extends State<PrivateTransportScreen> {
                     Positioned(
                       top: 16,
                       left: 16,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.star, color: Colors.white, size: 14),
-                            SizedBox(width: 4),
-                            Text(
-                              'Premium Service',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
+                      child: CustomBadge(
+                        label: 'Premium Service',
+                        backgroundColor: Colors.white.withOpacity(0.2),
+                        textColor: Colors.white,
+                        leading: const Icon(Icons.star, color: Colors.white, size: 14),
                       ),
                     ),
                     const Positioned(
@@ -282,12 +265,10 @@ class _PrivateTransportScreenState extends State<PrivateTransportScreen> {
               const SizedBox(height: 24),
 
               // Why Zenith Section
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1B1B1B), // dark background
-                  borderRadius: BorderRadius.circular(16),
-                ),
+              CustomCard(
+                borderRadius: 16,
+                backgroundColor: const Color(0xFF1B1B1B),
+                borderColor: Colors.transparent,
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -348,13 +329,10 @@ class _PrivateTransportScreenState extends State<PrivateTransportScreen> {
                   itemCount: _bookings.length,
                   itemBuilder: (context, index) {
                     final b = _bookings[index];
-                    return Container(
+                    return CustomCard(
                       margin: const EdgeInsets.only(bottom: 12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppTheme.surfaceContainer),
-                      ),
+                      borderRadius: 12,
+                      borderColor: AppTheme.surfaceContainer,
                       padding: const EdgeInsets.all(16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -379,23 +357,10 @@ class _PrivateTransportScreenState extends State<PrivateTransportScreen> {
                                   ),
                                 ],
                               ),
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.black12,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                child: Text(
-                                  b.status,
-                                  style: const TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
-                                ),
+                              CustomBadge(
+                                label: b.status,
+                                isSuccess: b.status.toLowerCase() == 'confirmed',
+                                showDot: false,
                               ),
                             ],
                           ),
@@ -474,15 +439,9 @@ class _PrivateTransportScreenState extends State<PrivateTransportScreen> {
 
   Widget _buildFeatureCard(IconData icon, String title, String body) {
     return Expanded(
-      child: Container(
-        height: 130,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: AppTheme.borderVariantColor.withOpacity(0.15),
-          ),
-        ),
+      child: CustomCard(
+        borderRadius: 12,
+        borderColor: AppTheme.borderVariantColor.withOpacity(0.15),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

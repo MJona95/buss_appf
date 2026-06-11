@@ -86,12 +86,15 @@ class SecondaryButton extends StatelessWidget {
           foregroundColor: textColor,
           elevation: 0,
           shape: const StadiumBorder(),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         ),
         onPressed: isEnabled ? onPressed : null,
-        child: Text(
-          text,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            text,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          ),
         ),
       ),
     );

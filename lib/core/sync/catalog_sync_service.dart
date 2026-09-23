@@ -26,7 +26,6 @@ class CatalogSyncService {
       estaciones: catalog['estaciones'] ?? const [],
       rutaEstaciones: catalog['ruta_estaciones'] ?? const [],
       tarifas: catalog['tarifas'] ?? const [],
-      rutaPuntos: catalog['ruta_puntos'] ?? const [],
       horarios: catalog['horarios'] ?? const [],
     );
     await _database.setCatalogVersion(remoteVersion);

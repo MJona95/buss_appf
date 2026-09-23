@@ -1,0 +1,18 @@
+[
+  {
+    "nombre": "Parada Mercado San José",
+    "latitud": 13.48612,
+    "longitud": -86.58221,
+    "poblado": false,
+    "ruta_id": null,
+    "orden_parada": null
+  },
+  {
+    "nombre": "Parada Catedral de Somoto",
+    "latitud": 13.48810,
+    "longitud": -86.58110,
+    "poblado": true,
+    "ruta_id": "00000000-0000-4000-8000-000000000201",
+    "orden_parada": 3
+  }
+]

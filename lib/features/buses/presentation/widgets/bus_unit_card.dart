@@ -17,6 +17,9 @@ class BusUnitCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final title = bus.name.isNotEmpty ? bus.name : 'Unidad ${bus.number}';
+    final plate = (bus.plate == null || bus.plate!.isEmpty) ? 'S/N' : bus.plate!;
+
     return CustomCard(
       margin: const EdgeInsets.only(bottom: 24),
       padding: EdgeInsets.zero,
@@ -72,7 +75,9 @@ class BusUnitCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Unidad ${bus.number}',
+                            title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w700,
@@ -82,6 +87,8 @@ class BusUnitCard extends StatelessWidget {
                           const SizedBox(height: 2),
                           Text(
                             bus.model,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               fontSize: 14,
                               color: AppTheme.secondaryColor,
@@ -90,27 +97,41 @@ class BusUnitCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        const Text(
-                          'CAPACIDAD',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 1.0,
-                            color: AppTheme.secondaryColor,
-                          ),
+                    const SizedBox(width: 12),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppTheme.surfaceContainerHigh,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        plate,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.primaryColor,
                         ),
-                        Text(
-                          '${bus.capacity} Pax',
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.primaryColor,
-                          ),
-                        ),
-                      ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    _InfoChip(
+                      icon: Icons.groups_rounded,
+                      label: '${bus.capacity} Pax',
+                    ),
+                    _InfoChip(
+                      icon: Icons.directions_bus_rounded,
+                      label: bus.operatingHours,
                     ),
                   ],
                 ),
@@ -135,10 +156,13 @@ class BusUnitCard extends StatelessWidget {
                               color: AppTheme.secondaryColor,
                             ),
                           ),
+                          const SizedBox(height: 2),
                           Text(
                             bus.tieneHorario
                                 ? bus.horarioLabel
-                                : bus.operatingHours,
+                                : 'Sin horario asignado',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w500,
@@ -152,11 +176,15 @@ class BusUnitCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(
-                      Icons.location_on_rounded,
-                      size: 20,
-                      color: AppTheme.secondaryColor,
+                    const Padding(
+                      padding: EdgeInsets.only(top: 2),
+                      child: Icon(
+                        Icons.location_on_rounded,
+                        size: 20,
+                        color: AppTheme.secondaryColor,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -171,8 +199,11 @@ class BusUnitCard extends StatelessWidget {
                               color: AppTheme.secondaryColor,
                             ),
                           ),
+                          const SizedBox(height: 2),
                           Text(
                             bus.currentLocation,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w500,
@@ -221,6 +252,41 @@ class BusUnitCard extends StatelessWidget {
                     ),
                   ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InfoChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  const _InfoChip({required this.icon, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: AppTheme.primaryColor),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.primaryColor,
             ),
           ),
         ],

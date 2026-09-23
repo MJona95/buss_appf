@@ -7,10 +7,12 @@ import 'package:buss_app/core/theme/app_theme.dart';
 import 'package:buss_app/core/widgets/custom_card.dart';
 import 'package:buss_app/core/widgets/custom_text_field.dart';
 import 'package:buss_app/core/widgets/custom_top_app_bar.dart';
+import '../../domain/entities/ruta_mapa.dart';
 import '../../domain/entities/station.dart';
-import '../../domain/usecases/filter_rutas.dart';
+import '../../domain/usecases/route_geometry.dart';
 import '../controllers/map_controller.dart';
 import '../widgets/station_card.dart';
+import '../widgets/station_detail_sheet.dart';
 import '../widgets/vehicle_marker_builder.dart';
 
 class MapScreen extends StatefulWidget {
@@ -56,10 +58,6 @@ class _MapScreenState extends State<MapScreen> {
       return Marker(
         markerId: MarkerId(station.id),
         position: LatLng(station.latitude, station.longitude),
-        infoWindow: InfoWindow(
-          title: station.name,
-          snippet: station.address,
-        ),
         icon: BitmapDescriptor.defaultMarkerWithHue(
           controller.selectedStationId == station.id
               ? BitmapDescriptor.hueRed
@@ -68,6 +66,7 @@ class _MapScreenState extends State<MapScreen> {
         onTap: () {
           controller.selectStation(station.id);
           _animateToStation(station);
+          _openStationSheet(station);
         },
       );
     }).toSet();
@@ -81,49 +80,56 @@ class _MapScreenState extends State<MapScreen> {
       Color(0xFFD81B60),
       Color(0xFFF4511E),
     ];
-    return controller.rutasVisibles.map((ruta) {
+    final polylines = <Polyline>[];
+    for (final ruta in controller.rutasVisibles) {
+      final km = controller.rutaAvanceKm[ruta.id] ?? 0;
       final index = controller.rutasMapa.indexWhere((r) => r.id == ruta.id);
       final colorIndex = index < 0 ? 0 : index % baseColors.length;
       final isSelected = ruta.id == selectedId;
       final color = isSelected
           ? baseColors[colorIndex].withAlpha(255)
           : baseColors[colorIndex].withAlpha(120);
-      return Polyline(
-        polylineId: PolylineId('ruta_${ruta.id}'),
-        points: ruta.puntos
-            .map((p) => LatLng(p.latitud, p.longitud))
-            .toList(),
-        color: color,
-        width: isSelected ? 7 : 4,
-        onTap: () => controller.selectRuta(ruta.id),
+      final restantes = ruta.puntos.sublist(
+        RouteGeometry.indiceTruncado(ruta.puntos, km),
       );
-    }).toSet();
+      if (restantes.length < 2) continue;
+      polylines.add(
+        Polyline(
+          polylineId: PolylineId('ruta_${ruta.id}'),
+          points: restantes.map((p) => LatLng(p.latitud, p.longitud)).toList(),
+          color: color,
+          width: isSelected ? 7 : 4,
+          onTap: () => controller.selectRuta(ruta.id),
+        ),
+      );
+    }
+    return polylines.toSet();
   }
 
   Set<Marker> _buildVehicleMarkers(MapController controller) {
-    final vehiculos = {
-      for (final v in controller.vehiculosVisibles) v.id: v,
-    };
+    final vehiculos = {for (final v in controller.vehiculosVisibles) v.id: v};
     return controller.vehiculoPosiciones.entries
         .where((entry) => vehiculos.containsKey(entry.key))
         .map((entry) {
-      final vehiculo = vehiculos[entry.key];
-      final posicion = entry.value;
-      final tipo = vehiculo?.tipoCodigo ?? 'bus';
-      return Marker(
-        markerId: MarkerId('vehiculo_${entry.key}'),
-        position: LatLng(posicion.latitud, posicion.longitud),
-        infoWindow: InfoWindow(
-          title: vehiculo?.nombre ?? 'Unidad',
-          snippet: vehiculo != null
-              ? '${vehiculo.placa ?? ''} · Sale ${vehiculo.horaSalida}'
-                    '${vehiculo.horaLlegada != null ? ' · Llega ${vehiculo.horaLlegada} (estimado)' : ''}'
-              : '${vehiculo?.placa ?? ''} · Ruta activa',
-        ),
-        icon: _markerCache[tipo] ??
-            BitmapDescriptor.defaultMarkerWithHue(_vehiculoHue(tipo)),
-      );
-    }).toSet();
+          final vehiculo = vehiculos[entry.key];
+          final posicion = entry.value;
+          final tipo = vehiculo?.tipoCodigo ?? 'bus';
+          return Marker(
+            markerId: MarkerId('vehiculo_${entry.key}'),
+            position: LatLng(posicion.latitud, posicion.longitud),
+            infoWindow: InfoWindow(
+              title: vehiculo?.nombre ?? 'Unidad',
+              snippet: vehiculo != null
+                  ? '${vehiculo.placa ?? ''} · Sale ${vehiculo.horaSalida}'
+                        '${vehiculo.horaLlegada != null ? ' · Llega ${vehiculo.horaLlegada} (estimado)' : ''}'
+                  : '${vehiculo?.placa ?? ''} · Ruta activa',
+            ),
+            icon:
+                _markerCache[tipo] ??
+                BitmapDescriptor.defaultMarkerWithHue(_vehiculoHue(tipo)),
+          );
+        })
+        .toSet();
   }
 
   static double _vehiculoHue(String tipoCodigo) {
@@ -141,6 +147,19 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
+  bool _stationSheetOpen = false;
+
+  void _openStationSheet(Station station) {
+    if (_stationSheetOpen) {
+      Navigator.of(context).pop();
+      _stationSheetOpen = false;
+    }
+    _stationSheetOpen = true;
+    showStationDetailSheet(context, station).whenComplete(() {
+      _stationSheetOpen = false;
+    });
+  }
+
   void _animateToStation(Station station) {
     _mapController?.animateCamera(
       CameraUpdate.newCameraPosition(
@@ -148,6 +167,38 @@ class _MapScreenState extends State<MapScreen> {
           target: LatLng(station.latitude, station.longitude),
           zoom: 14.5,
         ),
+      ),
+    );
+  }
+
+  void _onRutaSeleccionada(MapController controller, String? rutaId) {
+    controller.setRutaActiva(rutaId);
+    if (rutaId == null) {
+      _mapController?.animateCamera(
+        CameraUpdate.newCameraPosition(_initialCameraPosition),
+      );
+      return;
+    }
+    final ruta = controller.rutasMapa.where((r) => r.id == rutaId).firstOrNull;
+    if (ruta == null || ruta.puntos.length < 2) return;
+    var minLat = ruta.puntos.first.latitud;
+    var maxLat = ruta.puntos.first.latitud;
+    var minLng = ruta.puntos.first.longitud;
+    var maxLng = ruta.puntos.first.longitud;
+    for (final p in ruta.puntos) {
+      if (p.latitud < minLat) minLat = p.latitud;
+      if (p.latitud > maxLat) maxLat = p.latitud;
+      if (p.longitud < minLng) minLng = p.longitud;
+      if (p.longitud > maxLng) maxLng = p.longitud;
+    }
+    if (minLat == maxLat && minLng == maxLng) return;
+    _mapController?.animateCamera(
+      CameraUpdate.newLatLngBounds(
+        LatLngBounds(
+          southwest: LatLng(minLat, minLng),
+          northeast: LatLng(maxLat, maxLng),
+        ),
+        80,
       ),
     );
   }
@@ -172,9 +223,9 @@ class _MapScreenState extends State<MapScreen> {
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error getting location: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error getting location: $e')));
     }
   }
 
@@ -207,7 +258,7 @@ class _MapScreenState extends State<MapScreen> {
                     Stack(
                       children: [
                         SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.55,
+                          height: MediaQuery.of(context).size.height * 0.65,
                           width: double.infinity,
                           child: GoogleMap(
                             initialCameraPosition: _initialCameraPosition,
@@ -226,10 +277,10 @@ class _MapScreenState extends State<MapScreen> {
                             mapToolbarEnabled: false,
                             gestureRecognizers:
                                 <Factory<OneSequenceGestureRecognizer>>{
-                              Factory<OneSequenceGestureRecognizer>(
-                                () => EagerGestureRecognizer(),
-                              ),
-                            },
+                                  Factory<OneSequenceGestureRecognizer>(
+                                    () => EagerGestureRecognizer(),
+                                  ),
+                                },
                           ),
                         ),
                         Positioned(
@@ -308,7 +359,7 @@ class _MapScreenState extends State<MapScreen> {
                       ],
                     ),
                     Transform.translate(
-                      offset: const Offset(0, -28),
+                      offset: const Offset(0, -14),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 24),
                         child: Column(
@@ -319,35 +370,17 @@ class _MapScreenState extends State<MapScreen> {
                               onChanged: controller.search,
                             ),
                             const SizedBox(height: 12),
-                            SizedBox(
-                              height: 38,
-                              child: ListView(
-                                scrollDirection: Axis.horizontal,
-                                children: [
-                                  for (final filtro in [
-                                    FilterRutasPorDestino.todos,
-                                    ...FilterRutasPorDestino.destinos,
-                                  ])
-                                    Padding(
-                                      padding: const EdgeInsets.only(right: 8),
-                                      child: _DestinoChip(
-                                        label: filtro ==
-                                                FilterRutasPorDestino.todos
-                                            ? 'Todas'
-                                            : 'A $filtro',
-                                        isActive: controller.filtroRuta ==
-                                            filtro,
-                                        onTap: () => controller
-                                            .setFiltroRuta(filtro),
-                                      ),
-                                    ),
-                                ],
-                              ),
+                            _RutaDropdown(
+                              rutas: controller.rutasMapa,
+                              rutaActivaId: controller.rutaActivaId,
+                              onChanged: (id) =>
+                                  _onRutaSeleccionada(controller, id),
                             ),
                           ],
                         ),
                       ),
                     ),
+                    const SizedBox(height: 20),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: Column(
@@ -427,8 +460,9 @@ class _MapScreenState extends State<MapScreen> {
                                         Text(
                                           'ZENITH EXCLUSIVE',
                                           style: TextStyle(
-                                            color:
-                                                Colors.white.withOpacity(0.7),
+                                            color: Colors.white.withOpacity(
+                                              0.7,
+                                            ),
                                             fontSize: 12,
                                             fontWeight: FontWeight.w600,
                                             letterSpacing: 1.0,
@@ -462,44 +496,95 @@ class _MapScreenState extends State<MapScreen> {
   }
 }
 
-class _DestinoChip extends StatelessWidget {
-  final String label;
-  final bool isActive;
-  final VoidCallback onTap;
+class _RutaDropdown extends StatelessWidget {
+  static const String _todas = '__todas__';
 
-  const _DestinoChip({
-    required this.label,
-    required this.isActive,
-    required this.onTap,
+  final List<RutaMapa> rutas;
+  final String? rutaActivaId;
+  final ValueChanged<String?> onChanged;
+
+  const _RutaDropdown({
+    required this.rutas,
+    required this.rutaActivaId,
+    required this.onChanged,
   });
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-        decoration: BoxDecoration(
-          color: isActive ? AppTheme.primaryColor : Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isActive
-                ? AppTheme.primaryColor
-                : AppTheme.borderVariantColor.withOpacity(0.3),
-            width: 1.0,
-          ),
+    final selected = rutaActivaId ?? _todas;
+    return Container(
+      height: 48,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: AppTheme.borderVariantColor.withValues(alpha: 0.3),
+          width: 1.0,
         ),
-        child: Center(
-          child: Text(
-            label,
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: AppTheme.primaryColor,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(Icons.route, color: Colors.white, size: 18),
+          ),
+          const SizedBox(width: 12),
+          const Text(
+            'Ruta',
             style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: isActive ? Colors.white : AppTheme.primaryColor,
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.primaryColor,
             ),
           ),
-        ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: DropdownButton<String>(
+              value: selected,
+              isExpanded: true,
+              isDense: true,
+              underline: const SizedBox.shrink(),
+              icon: const Icon(
+                Icons.arrow_drop_down,
+                size: 22,
+                color: AppTheme.primaryColor,
+              ),
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.primaryColor,
+              ),
+              items: [
+                const DropdownMenuItem<String>(
+                  value: _todas,
+                  child: Text(
+                    'Todas las rutas',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                for (final ruta in rutas)
+                  DropdownMenuItem<String>(
+                    value: ruta.id,
+                    child: Text(
+                      ruta.nombre.isNotEmpty
+                          ? ruta.nombre
+                          : '${ruta.origenNombre} → ${ruta.destinoNombre}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+              ],
+              onChanged: (value) => onChanged(value == _todas ? null : value),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -3,6 +3,7 @@ import 'package:buss_app/core/theme/app_theme.dart';
 import 'package:buss_app/core/widgets/custom_badge.dart';
 import 'package:buss_app/core/widgets/custom_button.dart';
 import 'package:buss_app/core/widgets/custom_card.dart';
+import 'package:buss_app/core/widgets/pressable_scale.dart';
 import '../../domain/entities/trip.dart';
 
 class TripCard extends StatelessWidget {
@@ -59,7 +60,7 @@ class TripCard extends StatelessWidget {
                     left: 12,
                     child: CustomBadge(
                       label: trip.rating.toStringAsFixed(1),
-                      backgroundColor: Colors.white.withOpacity(0.9),
+                      backgroundColor: Colors.white.withValues(alpha: 0.9),
                       textColor: AppTheme.onBackgroundColor,
                       leading: const Icon(
                         Icons.star_rounded,
@@ -71,26 +72,41 @@ class TripCard extends StatelessWidget {
                 Positioned(
                   top: 12,
                   right: 12,
-                  child: InkWell(
-                    onTap: () {
-                      if (onBookmarkToggled != null) {
-                        onBookmarkToggled!(!trip.isBookmarked);
-                      }
-                    },
-                    borderRadius: BorderRadius.circular(20),
-                    child: Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.9),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        trip.isBookmarked
-                            ? Icons.bookmark_rounded
-                            : Icons.bookmark_border_rounded,
-                        color: AppTheme.primaryColor,
-                        size: 20,
+                  child: PressableScale(
+                    pressedScale: 0.85,
+                    child: InkWell(
+                      onTap: () {
+                        if (onBookmarkToggled != null) {
+                          onBookmarkToggled!(!trip.isBookmarked);
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.9),
+                          shape: BoxShape.circle,
+                        ),
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 220),
+                          transitionBuilder: (child, animation) =>
+                              ScaleTransition(
+                            scale: animation,
+                            child: FadeTransition(
+                              opacity: animation,
+                              child: child,
+                            ),
+                          ),
+                          child: Icon(
+                            trip.isBookmarked
+                                ? Icons.bookmark_rounded
+                                : Icons.bookmark_border_rounded,
+                            key: ValueKey(trip.isBookmarked),
+                            color: AppTheme.primaryColor,
+                            size: 20,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -142,7 +158,7 @@ class TripCard extends StatelessWidget {
                   ),
                 ),
                 SizedBox(
-                  width: 130,
+                  width: 108,
                   child: SecondaryButton(
                     text: trip.isAvailable ? 'View details' : 'Not available',
                     isEnabled: trip.isAvailable,

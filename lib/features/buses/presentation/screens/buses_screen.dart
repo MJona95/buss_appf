@@ -4,6 +4,7 @@ import 'package:buss_app/core/services/whatsapp_service.dart';
 import 'package:buss_app/core/theme/app_theme.dart';
 import 'package:buss_app/core/widgets/custom_text_field.dart';
 import 'package:buss_app/core/widgets/custom_top_app_bar.dart';
+import 'package:buss_app/core/widgets/pressable_scale.dart';
 import '../../domain/entities/bus.dart';
 import '../controllers/buses_controller.dart';
 import '../widgets/bus_unit_card.dart';
@@ -143,28 +144,33 @@ class _FilterTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-        decoration: BoxDecoration(
-          color: isActive ? AppTheme.primaryColor : Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isActive
-                ? AppTheme.primaryColor
-                : AppTheme.borderVariantColor.withOpacity(0.3),
-            width: 1.0,
+    return PressableScale(
+      pressedScale: 0.94,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          decoration: BoxDecoration(
+            color: isActive ? AppTheme.primaryColor : Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isActive
+                  ? AppTheme.primaryColor
+                  : AppTheme.borderVariantColor.withValues(alpha: 0.3),
+              width: 1.0,
+            ),
           ),
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: isActive ? Colors.white : AppTheme.primaryColor,
+          child: Center(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: isActive ? Colors.white : AppTheme.primaryColor,
+              ),
             ),
           ),
         ),

@@ -1,3 +1,17 @@
+class TarifaOpcion {
+  final String ruta;
+  final String tipo;
+  final double monto;
+  final String moneda;
+
+  const TarifaOpcion({
+    required this.ruta,
+    required this.tipo,
+    required this.monto,
+    required this.moneda,
+  });
+}
+
 class Station {
   final String id;
   final String name;
@@ -8,6 +22,8 @@ class Station {
   final String? rutaId;
   final String? horaSalida;
   final String? horaLlegada;
+  final bool poblado;
+  final List<TarifaOpcion> tarifas;
 
   const Station({
     required this.id,
@@ -19,6 +35,8 @@ class Station {
     this.rutaId,
     this.horaSalida,
     this.horaLlegada,
+    this.poblado = false,
+    this.tarifas = const [],
   });
 
   String get address => nextRoute;
@@ -37,6 +55,8 @@ class Station {
     String? rutaId,
     String? horaSalida,
     String? horaLlegada,
+    bool? poblado,
+    List<TarifaOpcion>? tarifas,
   }) {
     return Station(
       id: id ?? this.id,
@@ -48,6 +68,8 @@ class Station {
       rutaId: rutaId ?? this.rutaId,
       horaSalida: horaSalida ?? this.horaSalida,
       horaLlegada: horaLlegada ?? this.horaLlegada,
+      poblado: poblado ?? this.poblado,
+      tarifas: tarifas ?? this.tarifas,
     );
   }
 }

@@ -46,6 +46,18 @@ class RouteGeometry {
     return puntos.last;
   }
 
+  static int indiceTruncado(List<GeoPunto> puntos, double distanceKm) {
+    if (puntos.length < 2 || distanceKm <= 0) return 0;
+    var remaining = distanceKm;
+    for (var i = 1; i < puntos.length; i++) {
+      final segment = haversineKm(puntos[i - 1], puntos[i]);
+      if (segment <= 0) continue;
+      if (remaining <= segment) return i;
+      remaining -= segment;
+    }
+    return puntos.length;
+  }
+
   static DateTime? departureToday(String horaSalida, DateTime now) {
     final parts = horaSalida.split(':');
     if (parts.length < 2) return null;

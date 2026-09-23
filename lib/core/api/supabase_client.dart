@@ -64,7 +64,6 @@ class SupabaseManager {
         client.from('estaciones').select(),
         client.from('ruta_estaciones').select(),
         client.from('tarifas').select(),
-        client.from('ruta_puntos').select(),
         client.from('horarios').select(),
       ]);
       return {
@@ -75,8 +74,7 @@ class SupabaseManager {
         'estaciones': _asRows(results[4]),
         'ruta_estaciones': _asRows(results[5]),
         'tarifas': _asRows(results[6]),
-        'ruta_puntos': _asRows(results[7]),
-        'horarios': _asRows(results[8]),
+        'horarios': _asRows(results[7]),
       };
     } catch (e) {
       debugPrint('Supabase fetchCatalog error: $e');

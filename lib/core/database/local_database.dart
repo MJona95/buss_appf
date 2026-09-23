@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
-import 'catalog_ruta_puntos_seed.dart';
 import 'catalog_seed.dart';
 
 class LocalDatabase {
@@ -38,9 +37,10 @@ class LocalDatabase {
 
     return openDatabase(
       path,
-      version: 6,
+      version: 7,
       onConfigure: (db) => db.execute('PRAGMA foreign_keys = ON'),
       onCreate: _createDB,
+      onOpen: (db) => _ensureEstacionesPoblado(db),
       onUpgrade: (db, oldVersion, newVersion) async {
         if (oldVersion < 4) {
           await _dropLegacy(db);
@@ -51,11 +51,13 @@ class LocalDatabase {
         if (oldVersion < 5) {
           await _addVehicleSpeedColumns(db);
           await _createRutaPuntosTable(db);
-          await _seedRutaPuntos(db);
         }
         if (oldVersion < 6) {
           await _createHorariosTable(db);
           await _seedHorarios(db);
+        }
+        if (oldVersion < 7) {
+          await _ensureEstacionesPoblado(db);
         }
       },
     );
@@ -130,10 +132,12 @@ class LocalDatabase {
         nombre TEXT NOT NULL,
         latitud REAL NOT NULL,
         longitud REAL NOT NULL,
+        poblado INTEGER NOT NULL DEFAULT 0,
         activo INTEGER NOT NULL DEFAULT 1,
         creado_en TEXT
       )
     ''');
+    await _ensureEstacionesPoblado(db);
     await db.execute('''
       CREATE TABLE IF NOT EXISTS ruta_estaciones (
         id TEXT PRIMARY KEY,
@@ -191,6 +195,16 @@ class LocalDatabase {
     await _createHorariosTable(db);
   }
 
+  Future<void> _ensureEstacionesPoblado(Database db) async {
+    try {
+      await db.execute(
+        'ALTER TABLE estaciones ADD COLUMN poblado INTEGER NOT NULL DEFAULT 0',
+      );
+    } catch (_) {
+      // Columna ya existe en bases previas.
+    }
+  }
+
   Future<void> _createHorariosTable(Database db) async {
     await db.execute('''
       CREATE TABLE IF NOT EXISTS horarios (
@@ -237,12 +251,6 @@ class LocalDatabase {
     );
   }
 
-  Future<void> _seedRutaPuntos(Database db) async {
-    for (final row in rutaPuntosSeed) {
-      await db.insert('ruta_puntos', Map<String, dynamic>.from(row));
-    }
-  }
-
   Future<void> _seedCatalog(Database db) async {
     Future<void> insertAll(String table, List<Map<String, dynamic>> rows) async {
       for (final row in rows) {
@@ -257,7 +265,6 @@ class LocalDatabase {
     await insertAll('vehiculo_rutas', vehiculoRutasSeed);
     await insertAll('ruta_estaciones', rutaEstacionesSeed);
     await insertAll('tarifas', tarifasSeed);
-    await _seedRutaPuntos(db);
     await _seedHorarios(db);
     await db.insert('configuracion', {
       'id': 1,
@@ -275,7 +282,7 @@ class LocalDatabase {
     _vehiculoRutas = _clone(vehiculoRutasSeed);
     _rutaEstaciones = _clone(rutaEstacionesSeed);
     _tarifas = _clone(tarifasSeed);
-    _rutaPuntos = _clone(rutaPuntosSeed);
+    _rutaPuntos = [];
     _horarios = _clone(horariosSeed);
     _catalogVersion = 0;
   }
@@ -313,7 +320,6 @@ class LocalDatabase {
     required List<Map<String, dynamic>> estaciones,
     required List<Map<String, dynamic>> rutaEstaciones,
     required List<Map<String, dynamic>> tarifas,
-    required List<Map<String, dynamic>> rutaPuntos,
     required List<Map<String, dynamic>> horarios,
   }) async {
     if (kIsWeb) {
@@ -324,7 +330,6 @@ class LocalDatabase {
       _estaciones = _clone(estaciones.map(_normalizeEstacion));
       _rutaEstaciones = _clone(rutaEstaciones.map(_normalizeRutaEstacion));
       _tarifas = _clone(tarifas.map(_normalizeTarifa));
-      _rutaPuntos = _clone(rutaPuntos.map(_normalizeRutaPunto));
       _horarios = _clone(horarios.map(_normalizeHorario));
       return;
     }
@@ -332,7 +337,6 @@ class LocalDatabase {
     final db = await database;
     await db!.transaction((txn) async {
       await txn.delete('horarios');
-      await txn.delete('ruta_puntos');
       await txn.delete('ruta_estaciones');
       await txn.delete('vehiculo_rutas');
       await txn.delete('tarifas');
@@ -353,7 +357,6 @@ class LocalDatabase {
       await insertAll('tipos_vehiculo', tiposVehiculo.map(_normalizeTipo));
       await insertAll('estaciones', estaciones.map(_normalizeEstacion));
       await insertAll('rutas', rutas.map(_normalizeRuta));
-      await insertAll('ruta_puntos', rutaPuntos.map(_normalizeRutaPunto));
       await insertAll('vehiculos', vehiculos.map(_normalizeVehiculo));
       await insertAll(
         'vehiculo_rutas',
@@ -536,18 +539,20 @@ class LocalDatabase {
           'siguiente_ruta': siguiente,
           'hora_salida': horario?['hora_salida'],
           'hora_llegada': horario?['hora_llegada'],
+          'tarifas': _tarifasEstacionWeb(rutas),
         };
       }).toList();
     }
 
     final db = await database;
-    return db!.rawQuery('''
+    final rows = await db!.rawQuery('''
       SELECT
         e.id,
         e.nombre,
         e.latitud,
         e.longitud,
         e.activo,
+        e.poblado,
         (
           SELECT re.ruta_id FROM ruta_estaciones re
           WHERE re.estacion_id = e.id
@@ -591,6 +596,16 @@ class LocalDatabase {
       FROM estaciones e
       WHERE e.activo = 1
     ''');
+    final result = <Map<String, dynamic>>[];
+    for (final row in rows) {
+      final map = Map<String, dynamic>.from(row);
+      map['tarifas'] = await _tarifasEstacionSqlite(
+        db,
+        '${map['id']}',
+      );
+      result.add(map);
+    }
+    return result;
   }
 
   Future<List<Map<String, dynamic>>> getRutasMapa() async {
@@ -697,6 +712,101 @@ class LocalDatabase {
     ''');
   }
 
+  Future<Map<String, Map<String, dynamic>>> getRutaGeoContext() async {
+    final context = <String, Map<String, dynamic>>{};
+    if (kIsWeb) {
+      _seedWebDataIfEmpty();
+      for (final ruta in _rutas) {
+        context[ruta['id'] as String] = {
+          'origen_lat': ruta['origen_lat'],
+          'origen_lng': ruta['origen_lng'],
+          'destino_lat': ruta['destino_lat'],
+          'destino_lng': ruta['destino_lng'],
+          'estaciones': const [],
+        };
+      }
+      for (final re in _rutaEstaciones) {
+        final estacion = _estaciones.firstWhere(
+          (candidate) => candidate['id'] == re['estacion_id'],
+          orElse: () => const {},
+        );
+        if (estacion.isEmpty) continue;
+        final ruta = context[re['ruta_id'] as String];
+        if (ruta == null) continue;
+        (ruta['estaciones'] as List).add({
+          'latitud': estacion['latitud'],
+          'longitud': estacion['longitud'],
+        });
+      }
+      return context;
+    }
+
+    final db = await database;
+    final rutas = await db!.rawQuery('''
+      SELECT id, nombre, origen_lat, origen_lng, destino_lat, destino_lng
+      FROM rutas
+      WHERE activo = 1
+    ''');
+    for (final ruta in rutas) {
+      context['${ruta['id']}'] = {
+        'origen_lat': ruta['origen_lat'],
+        'origen_lng': ruta['origen_lng'],
+        'destino_lat': ruta['destino_lat'],
+        'destino_lng': ruta['destino_lng'],
+        'estaciones': <Map<String, dynamic>>[],
+      };
+    }
+    final estaciones = await db.rawQuery('''
+      SELECT re.ruta_id, e.latitud, e.longitud
+      FROM ruta_estaciones re
+      JOIN estaciones e ON e.id = re.estacion_id
+      WHERE e.activo = 1
+      ORDER BY re.ruta_id, re.orden_parada
+    ''');
+    for (final estacion in estaciones) {
+      final ruta = context['${estacion['ruta_id']}'];
+      if (ruta == null) continue;
+      (ruta['estaciones'] as List).add({
+        'latitud': estacion['latitud'],
+        'longitud': estacion['longitud'],
+      });
+    }
+    return context;
+  }
+
+  Future<void> replacePuntosRuta(
+    String rutaId,
+    List<Map<String, dynamic>> puntos,
+  ) async {
+    if (kIsWeb) {
+      _seedWebDataIfEmpty();
+      _rutaPuntos.removeWhere((punto) => punto['ruta_id'] == rutaId);
+      for (var i = 0; i < puntos.length; i++) {
+        _rutaPuntos.add({
+          'id': '$rutaId:${i + 1}',
+          'ruta_id': rutaId,
+          'orden': i + 1,
+          'latitud': puntos[i]['latitud'],
+          'longitud': puntos[i]['longitud'],
+        });
+      }
+      return;
+    }
+    final db = await database;
+    await db!.transaction((txn) async {
+      await txn.delete('ruta_puntos', where: 'ruta_id = ?', whereArgs: [rutaId]);
+      for (var i = 0; i < puntos.length; i++) {
+        await txn.insert('ruta_puntos', {
+          'id': '$rutaId:${i + 1}',
+          'ruta_id': rutaId,
+          'orden': i + 1,
+          'latitud': puntos[i]['latitud'],
+          'longitud': puntos[i]['longitud'],
+        });
+      }
+    });
+  }
+
   Future<Set<String>> getFavoritos() async {
     if (kIsWeb) {
       return Set<String>.from(_favoritos);
@@ -777,6 +887,115 @@ class LocalDatabase {
     return vigentes.isEmpty ? null : vigentes.first;
   }
 
+  List<Map<String, dynamic>> _tarifasVigentesDeRutaWeb(String rutaId) {
+    final now = DateTime.now();
+    String nombreRuta = '';
+    for (final r in _rutas) {
+      if (r['id'] == rutaId) {
+        nombreRuta = r['nombre'] as String? ?? '';
+        break;
+      }
+    }
+    final porTipo = <String, Map<String, dynamic>>{};
+    for (final tarifa in _tarifas) {
+      if (tarifa['ruta_id'] != rutaId || !_asBool(tarifa['activo'])) {
+        continue;
+      }
+      final desde = DateTime.tryParse('${tarifa['vigente_desde']}') ??
+          DateTime.fromMillisecondsSinceEpoch(0);
+      final hastaRaw = tarifa['vigente_hasta'];
+      final hasta =
+          hastaRaw == null ? null : DateTime.tryParse('$hastaRaw');
+      if (desde.isAfter(now)) continue;
+      if (hasta != null && !hasta.isAfter(now)) continue;
+      final tipoId = '${tarifa['tipo_vehiculo_id']}';
+      final actual = porTipo[tipoId];
+      final fechaActual = actual == null
+          ? DateTime.fromMillisecondsSinceEpoch(0)
+          : DateTime.tryParse('${actual['vigente_desde']}') ??
+                DateTime.fromMillisecondsSinceEpoch(0);
+      if (actual == null || desde.isAfter(fechaActual)) {
+        porTipo[tipoId] = tarifa;
+      }
+    }
+    final result = <Map<String, dynamic>>[];
+    for (final tarifa in porTipo.values) {
+      String tipoNombre = '';
+      for (final tipo in _tiposVehiculo) {
+        if (tipo['id'] == tarifa['tipo_vehiculo_id']) {
+          tipoNombre = tipo['nombre'] as String? ?? '';
+          break;
+        }
+      }
+      result.add({
+        'ruta': nombreRuta,
+        'tipo': tipoNombre,
+        'monto': (tarifa['monto'] as num).toDouble(),
+        'moneda': tarifa['moneda']?.toString() ?? 'NIO',
+      });
+    }
+    result.sort((a, b) => (a['monto'] as num).compareTo(b['monto'] as num));
+    return result;
+  }
+
+  List<Map<String, dynamic>> _tarifasEstacionWeb(
+    List<Map<String, dynamic>> rutasDeEstacion,
+  ) {
+    final tarifas = <Map<String, dynamic>>[];
+    for (final item in rutasDeEstacion) {
+      tarifas.addAll(_tarifasVigentesDeRutaWeb(item['ruta_id'] as String));
+    }
+    tarifas.sort((a, b) => (a['monto'] as num).compareTo(b['monto'] as num));
+    return tarifas;
+  }
+
+  Future<List<Map<String, dynamic>>> _tarifasVigentesDeRutaSqlite(
+    Database db,
+    String rutaId,
+  ) async {
+    final now = DateTime.now().toIso8601String();
+    final rows = await db.rawQuery('''
+      SELECT t.monto, t.moneda, r.nombre AS ruta_nombre, tv.nombre AS tipo_nombre
+      FROM tarifas t
+      JOIN rutas r ON r.id = t.ruta_id
+      JOIN tipos_vehiculo tv ON tv.id = t.tipo_vehiculo_id
+      WHERE t.ruta_id = ?
+        AND t.activo = 1
+        AND t.vigente_hasta IS NULL
+        AND t.vigente_desde <= ?
+      ORDER BY t.monto ASC
+    ''', [rutaId, now]);
+    return rows.map((row) {
+      return {
+        'ruta': '${row['ruta_nombre']}',
+        'tipo': '${row['tipo_nombre']}',
+        'monto': (row['monto'] as num).toDouble(),
+        'moneda': row['moneda']?.toString() ?? 'NIO',
+      };
+    }).toList();
+  }
+
+  Future<List<Map<String, dynamic>>> _tarifasEstacionSqlite(
+    Database db,
+    String estacionId,
+  ) async {
+    final rutasDeEstacion = await db.rawQuery('''
+      SELECT re.ruta_id
+      FROM ruta_estaciones re
+      JOIN rutas r ON r.id = re.ruta_id
+      WHERE re.estacion_id = ?
+      ORDER BY re.orden_parada
+    ''', [estacionId]);
+    final tarifas = <Map<String, dynamic>>[];
+    for (final item in rutasDeEstacion) {
+      tarifas.addAll(
+        await _tarifasVigentesDeRutaSqlite(db, item['ruta_id'] as String),
+      );
+    }
+    tarifas.sort((a, b) => (a['monto'] as num).compareTo(b['monto'] as num));
+    return tarifas;
+  }
+
   String _tipoTransporteDeRuta(String rutaId) {
     final vehiculoIds = _vehiculoRutas
         .where(
@@ -821,16 +1040,6 @@ class LocalDatabase {
     };
   }
 
-  Map<String, dynamic> _normalizeRutaPunto(Map<String, dynamic> row) {
-    return {
-      'id': '${row['id']}',
-      'ruta_id': '${row['ruta_id']}',
-      'orden': (row['orden'] as num).toInt(),
-      'latitud': (row['latitud'] as num).toDouble(),
-      'longitud': (row['longitud'] as num).toDouble(),
-    };
-  }
-
   Map<String, dynamic> _normalizeRuta(Map<String, dynamic> row) {
     return {
       'id': '${row['id']}',
@@ -862,6 +1071,7 @@ class LocalDatabase {
       'nombre': row['nombre'],
       'latitud': (row['latitud'] as num).toDouble(),
       'longitud': (row['longitud'] as num).toDouble(),
+      'poblado': _asSqliteBool(row['poblado']),
       'activo': _asSqliteBool(row['activo']),
       'creado_en': row['creado_en']?.toString(),
     };

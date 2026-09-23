@@ -49,7 +49,7 @@ class VehicleMarkerBuilder {
   }
 
   static Future<BitmapDescriptor> _build(String tipoCodigo) async {
-    const size = 60.0;
+    const size = 40.0;
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
     final color = isParticular(tipoCodigo) ? privateColor : busColor;
@@ -62,7 +62,7 @@ class VehicleMarkerBuilder {
     final border = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.5;
+      ..strokeWidth = 3;
     canvas.drawCircle(const Offset(size / 2, size / 2), size / 2, border);
 
     final icon = _iconFor(tipoCodigo);
@@ -70,7 +70,7 @@ class VehicleMarkerBuilder {
       text: TextSpan(
         text: String.fromCharCode(icon.codePoint),
         style: TextStyle(
-          fontSize: 30,
+          fontSize: 19,
           fontFamily: icon.fontFamily,
           package: icon.fontPackage,
           color: Colors.white,

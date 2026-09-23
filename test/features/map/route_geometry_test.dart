@@ -180,6 +180,32 @@ void main() {
       expect(llegada, '06:47');
     });
   });
+group('RouteGeometry.indiceTruncado', () {
+    final truncPoints = const [
+      GeoPunto(latitud: 0, longitud: 0),
+      GeoPunto(latitud: 0.001, longitud: 0.001),
+      GeoPunto(latitud: 0.002, longitud: 0.002),
+    ];
+
+    test('distancia cero no recorta ningún punto', () {
+      expect(RouteGeometry.indiceTruncado(truncPoints, 0), 0);
+    });
+
+    test('distancia dentro del primer segmento recorta en 1', () {
+      final idx = RouteGeometry.indiceTruncado(truncPoints, 0.0001);
+      expect(idx, 1);
+    });
+
+    test('distancia mayor al total devuelve el largo (todo recorrido)', () {
+      expect(RouteGeometry.indiceTruncado(truncPoints, 1000), truncPoints.length);
+    });
+
+    test('menos de dos puntos no recorta', () {
+      const solo = [GeoPunto(latitud: 1, longitud: 1)];
+      expect(RouteGeometry.indiceTruncado(const [], 5), 0);
+      expect(RouteGeometry.indiceTruncado(solo, 5), 0);
+    });
+  });
 }
 
 final points = const [

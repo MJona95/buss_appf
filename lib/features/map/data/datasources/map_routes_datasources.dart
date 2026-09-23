@@ -8,4 +8,13 @@ class MapRoutesLocalDatasource {
   Future<List<Map<String, dynamic>>> getRutas() => database.getRutasMapa();
 
   Future<List<Map<String, dynamic>>> getPuntos() => database.getPuntosRuta();
+
+  Future<Map<String, Map<String, dynamic>>> getRutaGeoContext() =>
+      database.getRutaGeoContext();
+
+  Future<void> replacePuntosRuta(
+    String rutaId,
+    List<Map<String, dynamic>> puntos,
+  ) =>
+      database.replacePuntosRuta(rutaId, puntos);
 }

@@ -18,6 +18,7 @@ class _MainNavigationContainerState extends State<MainNavigationContainer> {
 
   @override
   Widget build(BuildContext context) {
+    final keyboardVisible = MediaQuery.viewInsetsOf(context).bottom > 0;
     return Scaffold(
       extendBody: true,
       body: Stack(
@@ -25,30 +26,119 @@ class _MainNavigationContainerState extends State<MainNavigationContainer> {
           IndexedStack(
             index: _currentIndex,
             children: [
-              HomeScreen(
-                onSearchPressed: () {
-                  setState(() {
-                    _currentIndex = 1;
-                  });
-                },
+              _TabFadeIn(
+                isActive: _currentIndex == 0,
+                child: HomeScreen(
+                  onSearchPressed: () {
+                    setState(() {
+                      _currentIndex = 1;
+                    });
+                  },
+                ),
               ),
-              MapScreen(isActive: _currentIndex == 1),
-              const BusesScreen(),
-              const PrivateTransportScreen(),
+              _TabFadeIn(
+                isActive: _currentIndex == 1,
+                child: MapScreen(isActive: _currentIndex == 1),
+              ),
+              _TabFadeIn(
+                isActive: _currentIndex == 2,
+                child: const BusesScreen(),
+              ),
+              _TabFadeIn(
+                isActive: _currentIndex == 3,
+                child: const PrivateTransportScreen(),
+              ),
             ],
           ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: FloatingBottomNavBar(
-              currentIndex: _currentIndex,
-              onTap: (index) {
-                setState(() {
-                  _currentIndex = index;
-                });
-              },
+          AnimatedSlide(
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeInOut,
+            offset: keyboardVisible ? const Offset(0, 1.4) : Offset.zero,
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 220),
+              opacity: keyboardVisible ? 0 : 1,
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: FloatingBottomNavBar(
+                  currentIndex: _currentIndex,
+                  onTap: (index) {
+                    setState(() {
+                      _currentIndex = index;
+                    });
+                  },
+                ),
+              ),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _TabFadeIn extends StatefulWidget {
+  final bool isActive;
+  final Widget child;
+
+  const _TabFadeIn({required this.isActive, required this.child});
+
+  @override
+  State<_TabFadeIn> createState() => _TabFadeInState();
+}
+
+class _TabFadeInState extends State<_TabFadeIn>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _opacity;
+  late final Animation<Offset> _slide;
+  bool _wasActive = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 280),
+      value: widget.isActive ? 1.0 : 0.0,
+    );
+    _opacity = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutCubic,
+    );
+    _slide = Tween<Offset>(
+      begin: const Offset(0, 0.03),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutCubic,
+    ));
+    _wasActive = widget.isActive;
+  }
+
+  @override
+  void didUpdateWidget(covariant _TabFadeIn oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isActive != _wasActive) {
+      _wasActive = widget.isActive;
+      if (widget.isActive) {
+        _controller.forward(from: 0);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _opacity,
+      child: SlideTransition(
+        position: _slide,
+        child: widget.child,
       ),
     );
   }

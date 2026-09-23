@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import 'custom_avatar.dart';
+import 'pressable_scale.dart';
 
 class CustomTopAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String? title;
@@ -37,9 +38,12 @@ class CustomTopAppBar extends StatelessWidget implements PreferredSizeWidget {
                 color: AppTheme.surfaceContainer,
                 shape: BoxShape.circle,
               ),
-              child: IconButton(
-                icon: const Icon(Icons.menu, color: AppTheme.onBackgroundColor),
-                onPressed: onMenuPressed ?? () {},
+              child: PressableScale(
+                pressedScale: 0.88,
+                child: IconButton(
+                  icon: const Icon(Icons.menu, color: AppTheme.onBackgroundColor),
+                  onPressed: onMenuPressed ?? () {},
+                ),
               ),
             ),
             if (title != null && title!.isNotEmpty) ...[
@@ -66,12 +70,15 @@ class CustomTopAppBar extends StatelessWidget implements PreferredSizeWidget {
                   color: AppTheme.surfaceContainer,
                   shape: BoxShape.circle,
                 ),
-                child: IconButton(
-                  icon: const Icon(
-                    Icons.search,
-                    color: AppTheme.onBackgroundColor,
+                child: PressableScale(
+                  pressedScale: 0.88,
+                  child: IconButton(
+                    icon: const Icon(
+                      Icons.search,
+                      color: AppTheme.onBackgroundColor,
+                    ),
+                    onPressed: onSearchPressed,
                   ),
-                  onPressed: onSearchPressed,
                 ),
               ),
               const SizedBox(width: 12),

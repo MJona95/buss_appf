@@ -10,8 +10,8 @@ import '../../domain/entities/station.dart';
 import '../../domain/repositories/ruta_mapa_repository.dart';
 import '../../domain/repositories/station_repository.dart';
 import '../../domain/usecases/get_rutas_mapa.dart';
-import '../../domain/usecases/filter_rutas.dart';
 import '../../domain/usecases/route_geometry.dart';
+import '../../domain/usecases/rutas_seleccion.dart';
 import '../../domain/usecases/station_usecases.dart';
 
 class MapController extends ChangeNotifier {
@@ -43,8 +43,9 @@ class MapController extends ChangeNotifier {
 
   List<RutaMapa> _rutasMapa = [];
   final Map<String, GeoPunto> _vehiculoPosiciones = {};
+  final Map<String, double> _rutaAvanceKm = {};
   String? _selectedRutaId;
-  String _filtroRuta = FilterRutasPorDestino.todos;
+  String? _rutaActivaId;
   bool _simulation = false;
   DateTime _simulationStartedAt = DateTime.now();
   Timer? _timer;
@@ -59,12 +60,13 @@ class MapController extends ChangeNotifier {
   List<RutaMapa> get rutasMapa => _rutasMapa;
   Map<String, GeoPunto> get vehiculoPosiciones =>
       Map.unmodifiable(_vehiculoPosiciones);
+  Map<String, double> get rutaAvanceKm => Map.unmodifiable(_rutaAvanceKm);
   String? get selectedRutaId => _selectedRutaId;
   bool get simulation => _simulation;
-  String get filtroRuta => _filtroRuta;
+  String? get rutaActivaId => _rutaActivaId;
 
   List<RutaMapa> get rutasVisibles =>
-      FilterRutasPorDestino.ejecutar(_rutasMapa, _filtroRuta);
+      RutasPorSeleccion.ejecutar(_rutasMapa, _rutaActivaId);
 
   List<VehiculoEnRuta> get vehiculosVisibles {
     return [for (final ruta in rutasVisibles) ...ruta.vehiculos];
@@ -120,10 +122,9 @@ class MapController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setFiltroRuta(String filtro) {
-    _filtroRuta = filtro;
-    final visibles = rutasVisibles;
-    _selectedRutaId = visibles.length == 1 ? visibles.first.id : null;
+  void setRutaActiva(String? id) {
+    _rutaActivaId = id;
+    _selectedRutaId = id;
     notifyListeners();
   }
 
@@ -168,10 +169,12 @@ class MapController extends ChangeNotifier {
     if (_rutasMapa.isEmpty) return;
 
     _vehiculoPosiciones.clear();
+    _rutaAvanceKm.clear();
     final now = DateTime.now();
     for (final ruta in _rutasMapa) {
       final totalKm = RouteGeometry.totalKm(ruta.puntos);
       if (totalKm <= 0) continue;
+      double maxKm = 0;
       for (final vehiculo in ruta.vehiculos) {
         final km = RouteGeometry.distanceTraveledKm(
           now: now,
@@ -181,9 +184,11 @@ class MapController extends ChangeNotifier {
           simulationStartedAt: _simulationStartedAt,
           totalKm: totalKm,
         );
+        if (km > maxKm) maxKm = km;
         final posicion = RouteGeometry.interpolate(ruta.puntos, km);
         _vehiculoPosiciones[vehiculo.id] = posicion;
       }
+      _rutaAvanceKm[ruta.id] = _simulation ? maxKm.clamp(0.0, totalKm) : 0.0;
     }
     notifyListeners();
   }

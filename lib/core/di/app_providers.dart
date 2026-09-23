@@ -15,6 +15,7 @@ import 'package:buss_app/features/home/data/repositories/trip_repository_impl.da
 import 'package:buss_app/features/home/domain/repositories/trip_repository.dart';
 import 'package:buss_app/features/home/presentation/controllers/home_controller.dart';
 import 'package:buss_app/features/map/data/datasources/map_routes_datasources.dart';
+import 'package:buss_app/features/map/data/datasources/osrm_geometry_datasource.dart';
 import 'package:buss_app/features/map/data/datasources/station_datasources.dart';
 import 'package:buss_app/features/map/data/repositories/ruta_mapa_repository_impl.dart';
 import 'package:buss_app/features/map/data/repositories/station_repository_impl.dart';
@@ -42,8 +43,12 @@ List<SingleChildWidget> buildAppProviders() {
       create: (context) => StationRepositoryImpl(local: context.read()),
     ),
     Provider(create: (context) => MapRoutesLocalDatasource(context.read())),
+    Provider(create: (_) => OsrmGeometryDatasource()),
     Provider<RutaMapaRepository>(
-      create: (context) => RutaMapaRepositoryImpl(local: context.read()),
+      create: (context) => RutaMapaRepositoryImpl(
+        local: context.read(),
+        osrm: context.read(),
+      ),
     ),
     Provider(create: (context) => BusLocalDatasource(context.read())),
     Provider<BusRepository>(

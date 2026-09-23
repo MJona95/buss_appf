@@ -30,7 +30,7 @@ class BusUnitCard extends StatelessWidget {
           Stack(
             children: [
               AspectRatio(
-                aspectRatio: 16 / 9,
+                aspectRatio: 16 / 10,
                 child: Container(
                   color: AppTheme.surfaceContainerLow,
                   child: Image.network(
@@ -62,7 +62,7 @@ class BusUnitCard extends StatelessWidget {
             ],
           ),
           Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -120,7 +120,7 @@ class BusUnitCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
@@ -135,7 +135,7 @@ class BusUnitCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
                 Row(
                   children: [
                     const Icon(

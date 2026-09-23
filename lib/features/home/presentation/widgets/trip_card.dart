@@ -32,7 +32,7 @@ class TripCard extends StatelessWidget {
             Stack(
               children: [
                 AspectRatio(
-                  aspectRatio: 4 / 3,
+                  aspectRatio: 16 / 10,
                   child: Container(
                     decoration: BoxDecoration(
                       color: AppTheme.surfaceContainerLow,
@@ -130,17 +130,20 @@ class TripCard extends StatelessWidget {
                           color: AppTheme.primaryColor,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Row(
-                        crossAxisAlignment: CrossAxisAlignment.baseline,
-                        textBaseline: TextBaseline.alphabetic,
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text(
-                            '${trip.currency} ${trip.price.toStringAsFixed(2)}',
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w700,
-                              color: AppTheme.primaryColor,
+                          Flexible(
+                            child: Text(
+                              '${trip.currency} ${trip.price.toStringAsFixed(2)}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w700,
+                                color: AppTheme.primaryColor,
+                              ),
                             ),
                           ),
                           const SizedBox(width: 4),

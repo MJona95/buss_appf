@@ -31,12 +31,12 @@ class HomeScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 16),
+const SizedBox(height: 16),
                     CustomTopAppBar(
+                      title: 'BussApp',
                       showSearch: true,
                       onSearchPressed: onSearchPressed,
-                      profileImageUrl:
-                          'https://lh3.googleusercontent.com/aida-public/AB6AXuBEtHO9h1Djccsb89omYfU_Oqz5vYRxZZ-pMXTyAunBsePhtahZSthUlnx5L4A4SKXekRr2mz27TWNMS4N_BtTisp3sNbvoq2WAkin0xJpoV_UPlbWdEs0IWg6SoXiLjg_r9G8Sp0S3uJqN2evrkdHiQ4Zp7lYPz3oB4FBefpnamm5KTIusdvOGmUWckNLEsMJ4zWMTg_prF7h3KHGvhDnvshr3Mz3u9dIU2KoDvaJ9nailFokZ5jNC_jGhs2wWZ7bnnV66dYaKfyye',
+                      profileImageUrl: profileImageUrl,
                     ),
                     const SizedBox(height: 24),
                     const Text(

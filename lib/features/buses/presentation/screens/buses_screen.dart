@@ -45,9 +45,9 @@ class BusesScreen extends StatelessWidget {
                       bottom: 8,
                     ),
                     child: CustomTopAppBar(
-                      title: 'Unidades Disponibles',
-                      profileImageUrl:
-                          'https://lh3.googleusercontent.com/aida-public/AB6AXuBYWVZyhzmuT3XnSb3UR4urlHPLCPr18MIYPkGz9bwUFVPbCENoY31O5ZbhbeuT5iLLw1ZuPiGthmTU4K_2CS2WPzWjHssoyd2bJlZa0Ub96OjVJnL2MfXL6L4UBYUtF_JmS6UNtfVZUmxYW6UWP8Oq_VmwwNCuyDw5dQNFd28BVrRDgPCRiNykgB_iZQDTLe05yigOovx7CxKCc13P6MMVxaqZBB7adOJsPAiARcYKUeAHao8Yn1DxSGCC1L56pgcJJHDt4WCqJ7Ar',
+                      title: 'Unidades',
+                      showSearch: true,
+                      profileImageUrl: profileImageUrl,
                     ),
                   ),
                   Padding(
@@ -89,6 +89,22 @@ class BusesScreen extends StatelessWidget {
                                     'En Mantenimiento',
                                 onTap: () => controller
                                     .selectFilter('En Mantenimiento'),
+                              ),
+                              const SizedBox(width: 8),
+                              _FilterTab(
+                                label: 'Ruteados',
+                                isActive:
+                                    controller.selectedFilter == 'Ruteados',
+                                onTap: () =>
+                                    controller.selectFilter('Ruteados'),
+                              ),
+                              const SizedBox(width: 8),
+                              _FilterTab(
+                                label: 'Expresos',
+                                isActive:
+                                    controller.selectedFilter == 'Expresos',
+                                onTap: () =>
+                                    controller.selectFilter('Expresos'),
                               ),
                             ],
                           ),

@@ -125,9 +125,8 @@ class PrivateTransportScreen extends StatelessWidget {
             children: [
               const SizedBox(height: 16),
               const CustomTopAppBar(
-                title: 'Zenith Transit',
-                profileImageUrl:
-                    'https://lh3.googleusercontent.com/aida-public/AB6AXuBH2WgqsEpeL1QuSPVvAAYOBZl8NGl3yvx92eoukJglOS0_IaEgRacG0nT40Kz5DfhuXsSMr33a_KwXS1RdeBZXwwSsY3pt2FR0l4LiIdSC6WWZ1v_OjjKiFJVYgQR2sQVOID08sB6nhg7wsC6L6c_19aNZVP7_YriFU2-U_0lVVUkTGJ1s-Va9ojUMduTs1fdHn-Gp1rUxmHecO2sI81yVAs-M1OfVwCRauX8Q9UHhE_wffDlwVIFhN9_eLPxP_TQZWuPMIN0RjW4F',
+                title: 'Privado',
+                profileImageUrl: CustomTopAppBar.defaultProfileImageUrl,
               ),
               const SizedBox(height: 24),
               Container(

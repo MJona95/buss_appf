@@ -13,11 +13,15 @@ const rutaSomotoEsteliId = '00000000-0000-4000-8000-000000000201';
 const rutaEsteliManaguaId = '00000000-0000-4000-8000-000000000202';
 const rutaOcotalManaguaId = '00000000-0000-4000-8000-000000000203';
 const rutaSomotoManaguaId = '00000000-0000-4000-8000-000000000204';
+const rutaSomotoManaguaExpresoId = '00000000-0000-4000-8000-000000000221';
+const rutaEsteliManaguaExpresoId = '00000000-0000-4000-8000-000000000222';
 
 const vehiculo42Id = '00000000-0000-4000-8000-000000000301';
 const vehiculo15Id = '00000000-0000-4000-8000-000000000302';
 const vehiculo88Id = '00000000-0000-4000-8000-000000000303';
 const vehiculoVanId = '00000000-0000-4000-8000-000000000304';
+const vehiculo21Id = '00000000-0000-4000-8000-000000000305';
+const vehiculo24Id = '00000000-0000-4000-8000-000000000306';
 
 const tiposVehiculoSeed = [
   {
@@ -106,6 +110,7 @@ const rutasSeed = [
     'origen_lng': -86.58185,
     'destino_lat': 13.07620,
     'destino_lng': -86.35200,
+    'tipo_servicio': 'ruteado',
     'activo': 1,
     'creado_en': '2026-01-01T00:00:00Z',
   },
@@ -118,6 +123,7 @@ const rutasSeed = [
     'origen_lng': -86.35200,
     'destino_lat': 12.13422,
     'destino_lng': -86.19338,
+    'tipo_servicio': 'ruteado',
     'activo': 1,
     'creado_en': '2026-01-01T00:00:00Z',
   },
@@ -130,6 +136,7 @@ const rutasSeed = [
     'origen_lng': -86.47670,
     'destino_lat': 12.13422,
     'destino_lng': -86.19338,
+    'tipo_servicio': 'ruteado',
     'activo': 1,
     'creado_en': '2026-01-01T00:00:00Z',
   },
@@ -142,6 +149,33 @@ const rutasSeed = [
     'origen_lng': -86.58185,
     'destino_lat': 12.13422,
     'destino_lng': -86.19338,
+    'tipo_servicio': 'ruteado',
+    'activo': 1,
+    'creado_en': '2026-01-01T00:00:00Z',
+  },
+  {
+    'id': rutaSomotoManaguaExpresoId,
+    'nombre': 'Somoto - Managua (Expreso)',
+    'origen_nombre': 'Somoto',
+    'destino_nombre': 'Managua',
+    'origen_lat': 13.48858,
+    'origen_lng': -86.58185,
+    'destino_lat': 12.13422,
+    'destino_lng': -86.19338,
+    'tipo_servicio': 'expreso',
+    'activo': 1,
+    'creado_en': '2026-01-01T00:00:00Z',
+  },
+  {
+    'id': rutaEsteliManaguaExpresoId,
+    'nombre': 'Estelí - Managua (Expreso)',
+    'origen_nombre': 'Estelí',
+    'destino_nombre': 'Managua',
+    'origen_lat': 13.07620,
+    'origen_lng': -86.35200,
+    'destino_lat': 12.13422,
+    'destino_lng': -86.19338,
+    'tipo_servicio': 'expreso',
     'activo': 1,
     'creado_en': '2026-01-01T00:00:00Z',
   },
@@ -157,6 +191,7 @@ const vehiculosSeed = [
       'capacidad': 18,
       'velocidad_maxima': 80,
       'hora_salida': '06:00',
+      'tipo_servicio': 'ruteado',
       'activo': 1,
       'creado_en': '2026-01-01T00:00:00Z',
     },
@@ -169,6 +204,7 @@ const vehiculosSeed = [
       'capacidad': 44,
       'velocidad_maxima': 80,
       'hora_salida': '08:30',
+      'tipo_servicio': 'ruteado',
       'activo': 0,
       'creado_en': '2026-01-01T00:00:00Z',
     },
@@ -181,6 +217,7 @@ const vehiculosSeed = [
       'capacidad': 21,
       'velocidad_maxima': 80,
       'hora_salida': '05:00',
+      'tipo_servicio': 'ruteado',
       'activo': 1,
       'creado_en': '2026-01-01T00:00:00Z',
     },
@@ -193,6 +230,33 @@ const vehiculosSeed = [
       'capacidad': 12,
       'velocidad_maxima': 90,
       'hora_salida': '07:00',
+      'tipo_servicio': 'ruteado',
+      'activo': 1,
+      'creado_en': '2026-01-01T00:00:00Z',
+    },
+    {
+      'id': vehiculo21Id,
+      'nombre': 'Unidad 21',
+      'placa': '21',
+      'tipo_vehiculo_id': tipoBusId,
+      'tipo_transporte': 'public',
+      'capacidad': 45,
+      'velocidad_maxima': 90,
+      'hora_salida': '07:00',
+      'tipo_servicio': 'expreso',
+      'activo': 1,
+      'creado_en': '2026-01-01T00:00:00Z',
+    },
+    {
+      'id': vehiculo24Id,
+      'nombre': 'Unidad 24',
+      'placa': '24',
+      'tipo_vehiculo_id': tipoBusId,
+      'tipo_transporte': 'public',
+      'capacidad': 40,
+      'velocidad_maxima': 90,
+      'hora_salida': '08:00',
+      'tipo_servicio': 'expreso',
       'activo': 1,
       'creado_en': '2026-01-01T00:00:00Z',
     },
@@ -231,6 +295,20 @@ const vehiculoRutasSeed = [
     'id': '00000000-0000-4000-8000-000000000405',
     'vehiculo_id': vehiculoVanId,
     'ruta_id': rutaSomotoManaguaId,
+    'activo': 1,
+    'creado_en': '2026-01-01T00:00:00Z',
+  },
+  {
+    'id': '00000000-0000-4000-8000-000000000406',
+    'vehiculo_id': vehiculo21Id,
+    'ruta_id': rutaSomotoManaguaExpresoId,
+    'activo': 1,
+    'creado_en': '2026-01-01T00:00:00Z',
+  },
+  {
+    'id': '00000000-0000-4000-8000-000000000407',
+    'vehiculo_id': vehiculo24Id,
+    'ruta_id': rutaEsteliManaguaExpresoId,
     'activo': 1,
     'creado_en': '2026-01-01T00:00:00Z',
   },
@@ -291,6 +369,30 @@ const rutaEstacionesSeed = [
     'estacion_id': estacionManaguaId,
     'orden_parada': 3,
   },
+  {
+    'id': '00000000-0000-4000-8000-000000000510',
+    'ruta_id': rutaSomotoManaguaExpresoId,
+    'estacion_id': estacionSomotoId,
+    'orden_parada': 1,
+  },
+  {
+    'id': '00000000-0000-4000-8000-000000000511',
+    'ruta_id': rutaSomotoManaguaExpresoId,
+    'estacion_id': estacionManaguaId,
+    'orden_parada': 2,
+  },
+  {
+    'id': '00000000-0000-4000-8000-000000000512',
+    'ruta_id': rutaEsteliManaguaExpresoId,
+    'estacion_id': estacionEsteliId,
+    'orden_parada': 1,
+  },
+  {
+    'id': '00000000-0000-4000-8000-000000000513',
+    'ruta_id': rutaEsteliManaguaExpresoId,
+    'estacion_id': estacionManaguaId,
+    'orden_parada': 2,
+  },
 ];
 
 const tarifasSeed = [
@@ -349,6 +451,28 @@ const tarifasSeed = [
     'activo': 1,
     'creado_en': '2026-01-01T00:00:00Z',
   },
+  {
+    'id': '00000000-0000-4000-8000-000000000606',
+    'ruta_id': rutaSomotoManaguaExpresoId,
+    'tipo_vehiculo_id': tipoBusId,
+    'monto': 160.00,
+    'moneda': 'NIO',
+    'vigente_desde': '2026-01-01T00:00:00Z',
+    'vigente_hasta': null,
+    'activo': 1,
+    'creado_en': '2026-01-01T00:00:00Z',
+  },
+  {
+    'id': '00000000-0000-4000-8000-000000000607',
+    'ruta_id': rutaEsteliManaguaExpresoId,
+    'tipo_vehiculo_id': tipoBusId,
+    'monto': 110.00,
+    'moneda': 'NIO',
+    'vigente_desde': '2026-01-01T00:00:00Z',
+    'vigente_hasta': null,
+    'activo': 1,
+    'creado_en': '2026-01-01T00:00:00Z',
+  },
 ];
 
 const horariosSeed = [
@@ -394,6 +518,24 @@ const horariosSeed = [
     'vehiculo_id': vehiculoVanId,
     'hora_salida': '07:00',
     'hora_llegada': '10:31',
+    'activo': 1,
+    'creado_en': '2026-01-01T00:00:00Z',
+  },
+  {
+    'id': '00000000-0000-4000-8000-000000000711',
+    'ruta_id': rutaSomotoManaguaExpresoId,
+    'vehiculo_id': vehiculo21Id,
+    'hora_salida': '07:00',
+    'hora_llegada': '10:20',
+    'activo': 1,
+    'creado_en': '2026-01-01T00:00:00Z',
+  },
+  {
+    'id': '00000000-0000-4000-8000-000000000712',
+    'ruta_id': rutaEsteliManaguaExpresoId,
+    'vehiculo_id': vehiculo24Id,
+    'hora_salida': '08:00',
+    'hora_llegada': '11:05',
     'activo': 1,
     'creado_en': '2026-01-01T00:00:00Z',
   },

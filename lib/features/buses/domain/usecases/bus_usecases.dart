@@ -32,6 +32,10 @@ class FilterBuses {
       result = result.where((bus) => bus.isEnServicio).toList();
     } else if (filter == 'En Mantenimiento') {
       result = result.where((bus) => !bus.isEnServicio).toList();
+    } else if (filter == 'Ruteados') {
+      result = result.where((bus) => bus.serviceType != 'expreso').toList();
+    } else if (filter == 'Expresos') {
+      result = result.where((bus) => bus.serviceType == 'expreso').toList();
     }
 
     return result;

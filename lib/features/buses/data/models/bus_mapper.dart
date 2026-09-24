@@ -10,6 +10,7 @@ class BusMapper {
           map['tipo_codigo'] as String? ??
           '',
       transportType: map['tipo_transporte'] as String? ?? 'public',
+      serviceType: map['tipo_servicio']?.toString(),
       capacity: (map['capacidad'] as num?)?.toInt() ?? 0,
       active: _asBool(map['activo']),
       assignedRoutes: map['rutas_asignadas'] as String? ?? '',

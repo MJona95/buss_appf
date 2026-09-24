@@ -37,7 +37,7 @@ class LocalDatabase {
 
     return openDatabase(
       path,
-      version: 7,
+      version: 8,
       onConfigure: (db) => db.execute('PRAGMA foreign_keys = ON'),
       onCreate: _createDB,
       onOpen: (db) => _ensureEstacionesPoblado(db),
@@ -58,6 +58,9 @@ class LocalDatabase {
         }
         if (oldVersion < 7) {
           await _ensureEstacionesPoblado(db);
+        }
+        if (oldVersion < 8) {
+          await _addTipoServicioColumns(db);
         }
       },
     );
@@ -95,6 +98,7 @@ class LocalDatabase {
         capacidad INTEGER,
         velocidad_maxima INTEGER NOT NULL DEFAULT 80,
         hora_salida TEXT NOT NULL DEFAULT '06:00',
+        tipo_servicio TEXT NOT NULL DEFAULT 'ruteado',
         activo INTEGER NOT NULL DEFAULT 1,
         creado_en TEXT,
         FOREIGN KEY (tipo_vehiculo_id) REFERENCES tipos_vehiculo(id)
@@ -110,6 +114,7 @@ class LocalDatabase {
         origen_lng REAL NOT NULL,
         destino_lat REAL NOT NULL,
         destino_lng REAL NOT NULL,
+        tipo_servicio TEXT NOT NULL DEFAULT 'ruteado',
         activo INTEGER NOT NULL DEFAULT 1,
         creado_en TEXT
       )
@@ -249,6 +254,23 @@ class LocalDatabase {
     await db.execute(
       "ALTER TABLE vehiculos ADD COLUMN hora_salida TEXT NOT NULL DEFAULT '06:00'",
     );
+  }
+
+  Future<void> _addTipoServicioColumns(Database db) async {
+    try {
+      await db.execute(
+        "ALTER TABLE vehiculos ADD COLUMN tipo_servicio TEXT NOT NULL DEFAULT 'ruteado'",
+      );
+    } catch (_) {
+      // Columna ya existe en bases previas.
+    }
+    try {
+      await db.execute(
+        "ALTER TABLE rutas ADD COLUMN tipo_servicio TEXT NOT NULL DEFAULT 'ruteado'",
+      );
+    } catch (_) {
+      // Columna ya existe en bases previas.
+    }
   }
 
   Future<void> _seedCatalog(Database db) async {
@@ -396,6 +418,7 @@ class LocalDatabase {
         r.nombre,
         r.origen_nombre,
         r.destino_nombre,
+        r.tipo_servicio,
         r.activo,
         (
           SELECT t.monto FROM tarifas t
@@ -485,6 +508,7 @@ class LocalDatabase {
         v.tipo_transporte,
         v.capacidad,
         v.activo,
+        v.tipo_servicio,
         tv.codigo AS tipo_codigo,
         tv.nombre AS tipo_nombre,
         (
@@ -1035,6 +1059,7 @@ class LocalDatabase {
       'capacidad': (row['capacidad'] as num?)?.toInt(),
       'velocidad_maxima': (row['velocidad_maxima'] as num?)?.toInt() ?? 80,
       'hora_salida': row['hora_salida']?.toString() ?? '06:00',
+      'tipo_servicio': row['tipo_servicio']?.toString() ?? 'ruteado',
       'activo': _asSqliteBool(row['activo']),
       'creado_en': row['creado_en']?.toString(),
     };
@@ -1050,6 +1075,7 @@ class LocalDatabase {
       'origen_lng': (row['origen_lng'] as num).toDouble(),
       'destino_lat': (row['destino_lat'] as num).toDouble(),
       'destino_lng': (row['destino_lng'] as num).toDouble(),
+      'tipo_servicio': row['tipo_servicio']?.toString() ?? 'ruteado',
       'activo': _asSqliteBool(row['activo']),
       'creado_en': row['creado_en']?.toString(),
     };

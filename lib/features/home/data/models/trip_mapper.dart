@@ -13,6 +13,7 @@ class TripMapper {
       price: (map['monto'] as num?)?.toDouble() ?? 0,
       currency: map['moneda'] as String? ?? 'NIO',
       transportType: map['tipo_transporte'] as String? ?? 'public',
+      serviceType: map['tipo_servicio']?.toString(),
       horaSalida: map['hora_salida']?.toString(),
       horaLlegada: map['hora_llegada']?.toString(),
       isBookmarked: isBookmarked,

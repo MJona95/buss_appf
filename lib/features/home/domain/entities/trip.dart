@@ -6,6 +6,7 @@ class Trip {
   final double price;
   final String currency;
   final String transportType;
+  final String? serviceType;
   final String? horaSalida;
   final String? horaLlegada;
   final bool isBookmarked;
@@ -19,6 +20,7 @@ class Trip {
     required this.price,
     this.currency = 'NIO',
     this.transportType = 'public',
+    this.serviceType,
     this.horaSalida,
     this.horaLlegada,
     required this.isBookmarked,
@@ -29,6 +31,7 @@ class Trip {
   String get duration => '$originName → $destinationName';
   double get rating => 0;
   String get imageUrl => '';
+  bool get esExpreso => serviceType == 'expreso';
   bool get tieneHorario => horaSalida != null && horaLlegada != null;
   String get horarioLabel =>
       'Sale $horaSalida · Llega $horaLlegada (estimado)';
@@ -41,6 +44,7 @@ class Trip {
     double? price,
     String? currency,
     String? transportType,
+    String? serviceType,
     String? horaSalida,
     String? horaLlegada,
     bool? isBookmarked,
@@ -54,6 +58,7 @@ class Trip {
       price: price ?? this.price,
       currency: currency ?? this.currency,
       transportType: transportType ?? this.transportType,
+      serviceType: serviceType ?? this.serviceType,
       horaSalida: horaSalida ?? this.horaSalida,
       horaLlegada: horaLlegada ?? this.horaLlegada,
       isBookmarked: isBookmarked ?? this.isBookmarked,

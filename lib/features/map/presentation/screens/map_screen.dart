@@ -250,7 +250,10 @@ class _MapScreenState extends State<MapScreen> {
                         vertical: 16,
                       ),
                       child: CustomTopAppBar(
-                        title: 'Explore Stations',
+                                              child: CustomTopAppBar(
+                        title: 'Mapa',
+                        profileImageUrl:
+                            'https://lh3.googleusercontent.com/aida-public/AB6AXuWp47pBDKgTSSWn7UC7XtqulAYNTZ28NIiOxrERh1mfyKAGfFy0fVozDIvekymx4Zpc9XJWhKqgbHfsVmm9f2-gPMI9KHmHlll6vT4mf0zEoMbfQBnpBNqSIK3FC7bumYwv8elweK_Hqc1aD6KGUMA9Xy0KfW6Yb9Oidu7_BQcQubk1vKapT129vb_IDYUF","title":,
                         profileImageUrl:
                             'https://lh3.googleusercontent.com/aida-public/AB6AXuDfmA772YTD-GSL31OxXmelhuAJJzcgqDkm4xHZ3f9MrCgMB-msRbm8fKT7PsZavgZ4yJl_9hTJ3NUTHgmFYOGFlec961jMrOJcSvoHv5oBWAji8GINiDKU_0v_JPo5borQTv3jhOY2pwePP4NKJ0PYVxg3pFoolFqZsU3V7sZItD4ntoOD8Lkg0O2UV6oEAG9ZIuApjVqdodwz8Sah73Ak_v0xN-IoQP8GDt4OmYZQoWd7zBIckQfIBuy5CzgNx0meokfam2kwhYN0',
                       ),

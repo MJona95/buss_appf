@@ -4,6 +4,7 @@ class Bus {
   final String? plate;
   final String vehicleType;
   final String transportType;
+  final String? serviceType;
   final int capacity;
   final bool active;
   final String assignedRoutes;
@@ -18,6 +19,7 @@ class Bus {
     required this.transportType,
     required this.capacity,
     required this.active,
+    this.serviceType,
     this.assignedRoutes = '',
     this.horaSalida,
     this.horaLlegada,
@@ -27,6 +29,8 @@ class Bus {
   String get model => vehicleType;
   String get operatingHours =>
       transportType == 'private' ? 'Privado' : 'Público';
+  String get serviceLabel =>
+      serviceType == 'expreso' ? 'Expreso' : 'Ruteado';
   String get currentLocation =>
       assignedRoutes.isEmpty ? 'Sin ruta asignada' : assignedRoutes;
   String get phoneNumber => '';
@@ -42,6 +46,7 @@ class Bus {
     String? plate,
     String? vehicleType,
     String? transportType,
+    String? serviceType,
     int? capacity,
     bool? active,
     String? assignedRoutes,
@@ -54,6 +59,7 @@ class Bus {
       plate: plate ?? this.plate,
       vehicleType: vehicleType ?? this.vehicleType,
       transportType: transportType ?? this.transportType,
+      serviceType: serviceType ?? this.serviceType,
       capacity: capacity ?? this.capacity,
       active: active ?? this.active,
       assignedRoutes: assignedRoutes ?? this.assignedRoutes,

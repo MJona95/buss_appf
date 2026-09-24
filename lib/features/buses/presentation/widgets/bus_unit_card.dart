@@ -133,6 +133,13 @@ class BusUnitCard extends StatelessWidget {
                       icon: Icons.directions_bus_rounded,
                       label: bus.operatingHours,
                     ),
+                    _InfoChip(
+                      icon: bus.serviceType == 'expreso'
+                          ? Icons.bolt_rounded
+                          : Icons.alt_route_rounded,
+                      label: bus.serviceLabel,
+                      highlighted: bus.serviceType == 'expreso',
+                    ),
                   ],
                 ),
                 const SizedBox(height: 24),
@@ -263,15 +270,22 @@ class BusUnitCard extends StatelessWidget {
 class _InfoChip extends StatelessWidget {
   final IconData icon;
   final String label;
+  final bool highlighted;
 
-  const _InfoChip({required this.icon, required this.label});
+  const _InfoChip({
+    required this.icon,
+    required this.label,
+    this.highlighted = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceContainerHigh,
+        color: highlighted
+            ? AppTheme.primaryColor.withValues(alpha: 0.12)
+            : AppTheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(

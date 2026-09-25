@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
 class CustomAvatar extends StatelessWidget {
+  static const defaultImageUrl =
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuBYWVZyhzmuT3XnSb3UR4urlHPLCPr18MIYPkGz9bwUFVPbCENoY31O5ZbhbeuT5iLLw1ZuPiGthmTU4K_2CS2WPzWjHssoyd2bJlZa0Ub96OjVJnL2MfXL6L4UBYUtF_JmS6UNtfVZUmxYW6UWP8Oq_VmwwNCuyDw5dQNFd28BVrRDgPCRiNykgB_iZQDTLe05yigOovx7CxKCc13P6MMVxaqZBB7adOJsPAiARcYKUeAHao8Yn1DxSGCC1L56pgcJJHDt4WCqJ7Ar';
   final String imageUrl;
   final double size;
   final double borderWidth;

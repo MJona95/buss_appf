@@ -10,19 +10,21 @@ import '../controllers/buses_controller.dart';
 import '../widgets/bus_unit_card.dart';
 
 class BusesScreen extends StatelessWidget {
-  const BusesScreen({super.key});
+  final VoidCallback? onMenuPressed;
+
+  const BusesScreen({super.key, this.onMenuPressed});
 
   Future<void> _contactBus(BuildContext context, Bus bus) async {
     try {
       await context.read<WhatsAppService>().contactUnit(
-            phoneNumber: bus.phoneNumber,
-            unitNumber: bus.number,
-          );
+        phoneNumber: bus.phoneNumber,
+        unitNumber: bus.number,
+      );
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
     }
   }
 
@@ -37,8 +39,8 @@ class BusesScreen extends StatelessWidget {
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.only(
+                  Padding(
+                    padding: const EdgeInsets.only(
                       left: 24,
                       right: 24,
                       top: 16,
@@ -47,7 +49,7 @@ class BusesScreen extends StatelessWidget {
                     child: CustomTopAppBar(
                       title: 'Unidades',
                       showSearch: true,
-                      profileImageUrl: profileImageUrl,
+                      onMenuPressed: onMenuPressed,
                     ),
                   ),
                   Padding(
@@ -69,10 +71,12 @@ class BusesScreen extends StatelessWidget {
                             children: [
                               _FilterTab(
                                 label: 'Todas las Unidades',
-                                isActive: controller.selectedFilter ==
+                                isActive:
+                                    controller.selectedFilter ==
                                     'Todas las Unidades',
-                                onTap: () => controller
-                                    .selectFilter('Todas las Unidades'),
+                                onTap: () => controller.selectFilter(
+                                  'Todas las Unidades',
+                                ),
                               ),
                               const SizedBox(width: 8),
                               _FilterTab(
@@ -85,10 +89,11 @@ class BusesScreen extends StatelessWidget {
                               const SizedBox(width: 8),
                               _FilterTab(
                                 label: 'En Mantenimiento',
-                                isActive: controller.selectedFilter ==
+                                isActive:
+                                    controller.selectedFilter ==
                                     'En Mantenimiento',
-                                onTap: () => controller
-                                    .selectFilter('En Mantenimiento'),
+                                onTap: () =>
+                                    controller.selectFilter('En Mantenimiento'),
                               ),
                               const SizedBox(width: 8),
                               _FilterTab(

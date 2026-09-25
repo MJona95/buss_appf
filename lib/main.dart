@@ -6,6 +6,7 @@ import 'core/di/app_providers.dart';
 import 'core/layout/main_layout.dart';
 import 'core/sync/catalog_sync_service.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/theme_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,11 +23,17 @@ class BussApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: buildAppProviders(),
-      child: MaterialApp(
-        title: 'BusGo / Zenith Transit',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.themeData,
-        home: const MainNavigationContainer(),
+      child: Consumer<ThemeController>(
+        builder: (context, themeController, _) {
+          return MaterialApp(
+            title: 'BussApp',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.themeData,
+            darkTheme: AppTheme.darkThemeData,
+            themeMode: themeController.themeMode,
+            home: const MainNavigationContainer(),
+          );
+        },
       ),
     );
   }

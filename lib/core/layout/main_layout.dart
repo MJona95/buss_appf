@@ -3,6 +3,7 @@ import 'package:buss_app/features/buses/presentation/screens/buses_screen.dart';
 import 'package:buss_app/features/home/presentation/screens/home_screen.dart';
 import 'package:buss_app/features/map/presentation/screens/map_screen.dart';
 import 'package:buss_app/features/private_transport/presentation/screens/private_transport_screen.dart';
+import '../widgets/custom_app_drawer.dart';
 import 'bottom_nav_bar.dart';
 
 class MainNavigationContainer extends StatefulWidget {
@@ -14,12 +15,26 @@ class MainNavigationContainer extends StatefulWidget {
 }
 
 class _MainNavigationContainerState extends State<MainNavigationContainer> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _currentIndex = 0;
+
+  void _openDrawer() => _scaffoldKey.currentState?.openDrawer();
+
+  void _selectSection(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final keyboardVisible = MediaQuery.viewInsetsOf(context).bottom > 0;
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: CustomAppDrawer(
+        currentIndex: _currentIndex,
+        onNavigate: _selectSection,
+      ),
       extendBody: true,
       body: Stack(
         children: [
@@ -29,6 +44,7 @@ class _MainNavigationContainerState extends State<MainNavigationContainer> {
               _TabFadeIn(
                 isActive: _currentIndex == 0,
                 child: HomeScreen(
+                  onMenuPressed: _openDrawer,
                   onSearchPressed: () {
                     setState(() {
                       _currentIndex = 1;
@@ -38,15 +54,18 @@ class _MainNavigationContainerState extends State<MainNavigationContainer> {
               ),
               _TabFadeIn(
                 isActive: _currentIndex == 1,
-                child: MapScreen(isActive: _currentIndex == 1),
+                child: MapScreen(
+                  isActive: _currentIndex == 1,
+                  onMenuPressed: _openDrawer,
+                ),
               ),
               _TabFadeIn(
                 isActive: _currentIndex == 2,
-                child: const BusesScreen(),
+                child: BusesScreen(onMenuPressed: _openDrawer),
               ),
               _TabFadeIn(
                 isActive: _currentIndex == 3,
-                child: const PrivateTransportScreen(),
+                child: PrivateTransportScreen(onMenuPressed: _openDrawer),
               ),
             ],
           ),
@@ -101,17 +120,11 @@ class _TabFadeInState extends State<_TabFadeIn>
       duration: const Duration(milliseconds: 280),
       value: widget.isActive ? 1.0 : 0.0,
     );
-    _opacity = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOutCubic,
-    );
+    _opacity = CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic);
     _slide = Tween<Offset>(
       begin: const Offset(0, 0.03),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOutCubic,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
     _wasActive = widget.isActive;
   }
 
@@ -136,10 +149,7 @@ class _TabFadeInState extends State<_TabFadeIn>
   Widget build(BuildContext context) {
     return FadeTransition(
       opacity: _opacity,
-      child: SlideTransition(
-        position: _slide,
-        child: widget.child,
-      ),
+      child: SlideTransition(position: _slide, child: widget.child),
     );
   }
 }

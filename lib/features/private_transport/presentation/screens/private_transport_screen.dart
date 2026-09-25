@@ -9,7 +9,9 @@ import '../controllers/booking_controller.dart';
 import '../widgets/booking_form.dart';
 
 class PrivateTransportScreen extends StatelessWidget {
-  const PrivateTransportScreen({super.key});
+  final VoidCallback? onMenuPressed;
+
+  const PrivateTransportScreen({super.key, this.onMenuPressed});
 
   Future<void> _handleSubmit(
     BuildContext context,
@@ -124,10 +126,7 @@ class PrivateTransportScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 16),
-              const CustomTopAppBar(
-                title: 'Privado',
-                profileImageUrl: CustomTopAppBar.defaultProfileImageUrl,
-              ),
+              CustomTopAppBar(title: 'Privado', onMenuPressed: onMenuPressed),
               const SizedBox(height: 24),
               Container(
                 height: 220,
@@ -163,8 +162,11 @@ class PrivateTransportScreen extends StatelessWidget {
                         label: 'Premium Service',
                         backgroundColor: Colors.white.withOpacity(0.2),
                         textColor: Colors.white,
-                        leading:
-                            const Icon(Icons.star, color: Colors.white, size: 14),
+                        leading: const Icon(
+                          Icons.star,
+                          color: Colors.white,
+                          size: 14,
+                        ),
                       ),
                     ),
                     const Positioned(

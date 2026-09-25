@@ -4,8 +4,7 @@ import 'custom_avatar.dart';
 import 'pressable_scale.dart';
 
 class CustomTopAppBar extends StatelessWidget implements PreferredSizeWidget {
-  static const defaultProfileImageUrl =
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuBYWVZyhzmuT3XnSb3UR4urlHPLCPr18MIYPkGz9bwUFVPbCENoY31O5ZbhbeuT5iLLw1ZuPiGthmTU4K_2CS2WPzWjHssoyd2bJlZa0Ub96OjVJnL2MfXL6L4UBYUtF_JmS6UNtfVZUmxYW6UWP8Oq_VmwwNCuyDw5dQNFd28BVrRDgPCRiNykgB_iZQDTLe05yigOovx7CxKCc13P6MMVxaqZBB7adOJsPAiARcYKUeAHao8Yn1DxSGCC1L56pgcJJHDt4WCqJ7Ar';
+  static const String defaultProfileImageUrl = CustomAvatar.defaultImageUrl;
 
   final String? title;
   final bool showSearch;
@@ -44,7 +43,10 @@ class CustomTopAppBar extends StatelessWidget implements PreferredSizeWidget {
               child: PressableScale(
                 pressedScale: 0.88,
                 child: IconButton(
-                  icon: const Icon(Icons.menu, color: AppTheme.onBackgroundColor),
+                  icon: const Icon(
+                    Icons.menu,
+                    color: AppTheme.onBackgroundColor,
+                  ),
                   onPressed: onMenuPressed ?? () {},
                 ),
               ),
@@ -86,10 +88,7 @@ class CustomTopAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
               const SizedBox(width: 12),
             ],
-            CustomAvatar(
-              imageUrl: profileImageUrl,
-              size: 40,
-            ),
+            CustomAvatar(imageUrl: profileImageUrl, size: 40),
           ],
         ),
       ],

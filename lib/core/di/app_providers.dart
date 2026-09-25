@@ -6,6 +6,7 @@ import 'package:buss_app/core/services/location_service.dart';
 import 'package:buss_app/core/services/quote_service.dart';
 import 'package:buss_app/core/services/whatsapp_service.dart';
 import 'package:buss_app/core/sync/catalog_sync_service.dart';
+import 'package:buss_app/core/theme/theme_controller.dart';
 import 'package:buss_app/features/buses/data/datasources/bus_datasources.dart';
 import 'package:buss_app/features/buses/data/repositories/bus_repository_impl.dart';
 import 'package:buss_app/features/buses/domain/repositories/bus_repository.dart';
@@ -30,6 +31,7 @@ import 'package:buss_app/features/private_transport/presentation/controllers/boo
 List<SingleChildWidget> buildAppProviders() {
   return [
     Provider<LocalDatabase>.value(value: LocalDatabase.instance),
+    ChangeNotifierProvider(create: (_) => ThemeController()..load()),
     Provider(create: (context) => CatalogSyncService(context.read())),
     Provider(create: (_) => LocationService()),
     Provider(create: (_) => WhatsAppService()),
@@ -45,10 +47,8 @@ List<SingleChildWidget> buildAppProviders() {
     Provider(create: (context) => MapRoutesLocalDatasource(context.read())),
     Provider(create: (_) => OsrmGeometryDatasource()),
     Provider<RutaMapaRepository>(
-      create: (context) => RutaMapaRepositoryImpl(
-        local: context.read(),
-        osrm: context.read(),
-      ),
+      create: (context) =>
+          RutaMapaRepositoryImpl(local: context.read(), osrm: context.read()),
     ),
     Provider(create: (context) => BusLocalDatasource(context.read())),
     Provider<BusRepository>(
@@ -57,15 +57,11 @@ List<SingleChildWidget> buildAppProviders() {
     Provider(create: (context) => BookingLocalDatasource(context.read())),
     Provider(create: (_) => BookingRemoteDatasource()),
     Provider<BookingRepository>(
-      create: (context) => BookingRepositoryImpl(
-        local: context.read(),
-        remote: context.read(),
-      ),
+      create: (context) =>
+          BookingRepositoryImpl(local: context.read(), remote: context.read()),
     ),
     ChangeNotifierProvider(
-      create: (context) => HomeController(
-        repository: context.read(),
-      )..load(),
+      create: (context) => HomeController(repository: context.read())..load(),
     ),
     ChangeNotifierProvider(
       create: (context) => MapController(
@@ -75,9 +71,7 @@ List<SingleChildWidget> buildAppProviders() {
       )..load(),
     ),
     ChangeNotifierProvider(
-      create: (context) => BusesController(
-        repository: context.read(),
-      )..load(),
+      create: (context) => BusesController(repository: context.read())..load(),
     ),
     ChangeNotifierProvider(
       create: (context) => BookingController(

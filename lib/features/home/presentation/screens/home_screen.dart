@@ -9,8 +9,9 @@ import '../widgets/trip_card.dart';
 
 class HomeScreen extends StatelessWidget {
   final VoidCallback? onSearchPressed;
+  final VoidCallback? onMenuPressed;
 
-  const HomeScreen({super.key, this.onSearchPressed});
+  const HomeScreen({super.key, this.onSearchPressed, this.onMenuPressed});
 
   static const _categoryIcons = [
     Icons.directions_bus,
@@ -31,12 +32,12 @@ class HomeScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-const SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     CustomTopAppBar(
                       title: 'BussApp',
                       showSearch: true,
                       onSearchPressed: onSearchPressed,
-                      profileImageUrl: profileImageUrl,
+                      onMenuPressed: onMenuPressed,
                     ),
                     const SizedBox(height: 24),
                     const Text(
@@ -127,8 +128,9 @@ const SizedBox(height: 16),
                                   : Colors.white,
                               borderColor: isActive
                                   ? AppTheme.primaryColor
-                                  : AppTheme.borderVariantColor
-                                      .withOpacity(0.2),
+                                  : AppTheme.borderVariantColor.withOpacity(
+                                      0.2,
+                                    ),
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 20,
                                 vertical: 8,
